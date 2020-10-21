@@ -1,84 +1,10 @@
 from tkinter import *
 from tkinter import ttk
 from portfolio import Portfolio
-from etf import ETF
-from datetime import date
-import pandas as pd
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from Frames.add_etf import AddEtf
+from Frames.sell_etf import SellEtf
 
-
-class AddEtf(ttk.Frame):
-
-    def __init__(self, root):
-        super().__init__(root)
-        ttk.Label(self, text='AGGIUNGI ETF').grid(row=0, column=0, columnspan=2, pady=10)
-        ttk.Label(self, text='Ticker', anchor='w', justify='left').grid(row=1, column=0, padx=5, pady=5)
-        ttk.Label(self, text='Data Acquisto', anchor='w', justify='left').grid(row=2, column=0, padx=5, pady=5)
-        ttk.Label(self, text='Numero di Azioni', anchor='w', justify='left').grid(row=3, column=0, padx=5, pady=5)
-        ttk.Label(self, text="Prezzo d'Acquisto", anchor='w', justify='left').grid(row=4, column=0, padx=5, pady=5)
-        ttk.Label(self, text='Commissioni', anchor='w', justify='left').grid(row=5, column=0, padx=5, pady=5)
-        self.tickerVar = StringVar()
-        self.dateVar = StringVar(value='Es. 10-12-2020')
-        self.nVar = IntVar()
-        self.priceVar = DoubleVar()
-        self.commVar = DoubleVar()
-        ttk.Entry(self, textvariable=self.tickerVar, width=12).grid(row=1, column=1)    
-        self.e = ttk.Entry(self, textvariable=self.dateVar, width=12)
-        self.e.grid(row=2, column=1)   
-        ttk.Entry(self, textvariable=self.nVar, width=12).grid(row=3, column=1)           
-        ttk.Entry(self, textvariable=self.priceVar, width=12).grid(row=4, column=1)           
-        ttk.Entry(self, textvariable=self.commVar, width=12).grid(row=5, column=1) 
-        self.result = ttk.Label(self, text='')
-        self.result.grid(row=6, column=1) 
-        self.button = ttk.Button(self, text='Aggiungi', command=self.add_etf)
-        self.button.grid(row=6, column=0, pady=10)
-
-    def add_etf(self):
-        day = self.e.get().split('-')
-        try:
-            p.add_etf(ETF(self.tickerVar.get(), date(int(day[2]), int(day[1]), int(day[0])), self.nVar.get(), self.priceVar.get(), self.commVar.get()))     
-            self.tickerVar.set('')
-            self.dateVar.set('')
-            self.priceVar.set('')
-            self.commVar.set('')
-            self.result.configure(text='ETF aggiunyo !')
-        except:
-            self.result.configure(text='Errore !')       
-
-class SellEtf(ttk.Frame):
-
-    def __init__(self, root):
-        super().__init__(root)
-        ttk.Label(self, text='VENDI ETF').grid(row=0, column=0, columnspan=2, pady=10)
-        ttk.Label(self, text='Ticker', anchor='w', justify='left').grid(row=1, column=0, padx=5, pady=5)
-        ttk.Label(self, text='Data Vendita', anchor='w', justify='left').grid(row=2, column=0, padx=5, pady=5)
-        ttk.Label(self, text="Prezzo di Vendita", anchor='w', justify='left').grid(row=3, column=0, padx=5, pady=5)
-        ttk.Label(self, text='Commissioni', anchor='w', justify='left').grid(row=4, column=0, padx=5, pady=5)
-        self.tickerVar = StringVar()
-        self.dateVar = StringVar(value='Es. 10-12-2020')
-        self.priceVar = DoubleVar()
-        self.commVar = DoubleVar()
-        ttk.Entry(self, textvariable=self.tickerVar, width=12).grid(row=1, column=1)    
-        self.e = ttk.Entry(self, textvariable=self.dateVar, width=12)
-        self.e.grid(row=2, column=1)   
-        ttk.Entry(self, textvariable=self.priceVar, width=12).grid(row=3, column=1)           
-        ttk.Entry(self, textvariable=self.commVar, width=12).grid(row=4, column=1) 
-        self.result = ttk.Label(self, text='')
-        self.result.grid(row=5, column=1) 
-        self.button = ttk.Button(self, text='Vendi', command=self.sell_etf)
-        self.button.grid(row=5, column=0, pady=10)
-
-    def sell_etf(self):
-        day = self.e.get().split('-')
-        try:
-            p.sell_etf(self.tickerVar.get(), date(int(day[2]), int(day[1]), int(day[0])), self.priceVar.get(), self.commVar.get())       
-            self.tickerVar.set('')
-            self.dateVar.set('')
-            self.priceVar.set('')
-            self.commVar.set('')
-            self.result.configure(text='ETF sold !')
-        except:
-            self.result.configure(text='Errore !')
 
 class App:
 
@@ -136,9 +62,9 @@ class App:
         for y in range(2):
             self.list_frame.columnconfigure(y, weight=1)
         self.list_frame.rowconfigure(0, weight=1)
-        self.add_frame = AddEtf(self.right_frame)
+        self.add_frame = AddEtf(self.right_frame, p)
         self.add_frame.grid(row=1, column=0)
-        self.sell_frame = SellEtf(self.right_frame)
+        self.sell_frame = SellEtf(self.right_frame, p)
         self.sell_frame.grid(row=2, column=0)
         for x in range(3):
             self.right_frame.rowconfigure(x, weight=1)
