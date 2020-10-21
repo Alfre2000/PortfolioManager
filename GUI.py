@@ -2,8 +2,9 @@ from tkinter import *
 from tkinter import ttk
 from portfolio import Portfolio
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from Frames.add_etf import AddEtf
-from Frames.sell_etf import SellEtf
+from Frames.right_frame import RightFrame
+from functions import clear_frame
+
 
 
 class App:
@@ -46,36 +47,15 @@ class App:
         self.central_frame = ttk.Frame(self.mainframe)
         self.central_frame.grid(row=0, column=1, columnspan=5, sticky=(E, W, N, S), padx=15)
         # --------------------------------------RIGHT FRAME-------------------------------------------------- #
-        self.right_frame = ttk.Frame(self.mainframe)
+        self.right_frame = RightFrame(self.mainframe, self, p)
         self.right_frame.grid(row=0, column=6, sticky=(E, N, S, W), padx=15)
-        # --------------------------------------RIGHT WIDGES------------------------------------------------- #
-        self.list_frame = ttk.Frame(self.right_frame)
-        self.list_frame.grid(row=0, column=0)
-        self.etf_names = tuple([x for x in p.etfs.keys()])
-        self.names = StringVar(value=self.etf_names)
-        self.lbox = Listbox(self.list_frame, listvariable=self.names, height=6)
-        self.lbox.grid(row=0, column=0)
-        self.lbox.bind('<<ListboxSelect>>', lambda e: self.etf_graph(self.lbox.curselection()))
-        self.scroll = ttk.Scrollbar(self.list_frame, orient=VERTICAL, command=self.lbox.yview)
-        self.lbox.configure(yscrollcommand=self.scroll.set)
-        self.scroll.grid(row=0, column=1)
-        for y in range(2):
-            self.list_frame.columnconfigure(y, weight=1)
-        self.list_frame.rowconfigure(0, weight=1)
-        self.add_frame = AddEtf(self.right_frame, p)
-        self.add_frame.grid(row=1, column=0)
-        self.sell_frame = SellEtf(self.right_frame, p)
-        self.sell_frame.grid(row=2, column=0)
-        for x in range(3):
-            self.right_frame.rowconfigure(x, weight=1)
-        self.right_frame.columnconfigure(0, weight=1)
         
         self.last_day()
 
     def last_day(self):
-        self.clear_frame(self.central_frame)
+        clear_frame(self.central_frame)
         self.clear_radio()
-        self.clear_list_box()
+        self.right_frame.etf_list.clear_box()
         table = p.last_day_table()
         ttk.Label(self.central_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
         ttk.Label(self.central_frame, text=p.data.index[-1].date().strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
@@ -93,10 +73,6 @@ class App:
         for x in range(len(table.index)+3+1):
             self.central_frame.rowconfigure(x, weight=1)
     
-    def clear_frame(self, frame):
-        for widget in frame.winfo_children():
-            widget.destroy()
-    
     def clear_radio(self):
         self.equityGraph.state(['!selected'])
         self.valueGraph.state(['!selected'])
@@ -106,12 +82,9 @@ class App:
         self.investmentTable.state(['!selected'])
         self.portfolioTable.state(['!selected'])
     
-    def clear_list_box(self):
-        self.lbox.select_clear(0,len(self.etf_names)-1)
-    
     def value_line(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         fig, ax = p.value_line()
         canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -125,8 +98,8 @@ class App:
 
     
     def equity_line(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         fig, ax = p.equity_line()
         canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -139,8 +112,8 @@ class App:
         self.central_frame.columnconfigure(0, weight=1)
 
     def invested_line(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         fig, ax = p.investment_line()
         canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -153,8 +126,8 @@ class App:
         self.central_frame.columnconfigure(0, weight=1)
     
     def bar_chart(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         fig, ax = p.bar_chart("M")
         canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -167,8 +140,8 @@ class App:
         self.central_frame.columnconfigure(0, weight=1)
     
     def pie_chart(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         fig, ax = p.pie_chart()
         canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -181,8 +154,8 @@ class App:
         self.central_frame.columnconfigure(0, weight=1)
     
     def investment_table(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         table = p.investments_table()
         table.insert(0, 'Buying Date', table.index)
         table['Idx'] = [x for x in range(len(table))]
@@ -199,8 +172,8 @@ class App:
             self.central_frame.columnconfigure(y, weight=1)
 
     def portfolio_table(self):
-        self.clear_frame(self.central_frame)
-        self.clear_list_box()
+        clear_frame(self.central_frame)
+        self.right_frame.etf_list.clear_box()
         table = p.porfolio_table()
         ttk.Label(self.central_frame, text="DATI RELATIVI AL PORTAFOGLIO").grid(row=0, column=0, columnspan=len(table.columns)+1)
         ttk.Label(self.central_frame, text='Ticker').grid(row=1, column=0)
@@ -217,24 +190,9 @@ class App:
 
 
     def stats(self):
-        self.clear_frame(self.central_frame)
+        clear_frame(self.central_frame)
         self.clear_radio()
-        self.clear_list_box()
-    
-    def etf_graph(self, etf):
-        self.clear_frame(self.central_frame)
-        self.clear_radio()
-        fig, ax = p.get_etf_by_name(self.etf_names[etf[0]]).equity_line()
-        canvas = FigureCanvasTkAgg(fig, master=self.central_frame)  # A tk.DrawingArea.
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
-
-        toolbar = NavigationToolbar2Tk(canvas, self.central_frame)
-        toolbar.update()
-        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
-        self.central_frame.rowconfigure(0, weight=1)
-        self.central_frame.columnconfigure(0, weight=1)
-
+        self.right_frame.etf_list.clear_box()
 
 
 def main():
