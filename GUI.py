@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-from matplotlib.pyplot import text
 from portfolio import Portfolio
 from etf import ETF
 from datetime import date
