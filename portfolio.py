@@ -422,7 +422,7 @@ class Portfolio:
         table['P/L (%)'] = [etf.profit_loss(pct=True) for etf in self.etfs.values()]
         return table
 
-    def porfolio_table(self):
+    def portfolio_table(self):
         """
         Creates a table showing statistics for each ETF type
         :return pandas.DataFrame

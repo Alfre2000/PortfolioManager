@@ -29,8 +29,7 @@ class SellEtf(ttk.Frame):
         ttk.Entry(self, textvariable=self.commVar, width=12).grid(row=4, column=1) 
         self.result = ttk.Label(self, text='')
         self.result.grid(row=5, column=1) 
-        self.button = ttk.Button(self, text='Vendi', command=self.sell_etf)
-        self.button.grid(row=5, column=0, pady=10)
+        ttk.Button(self, text='Vendi', command=self.sell_etf).grid(row=5, column=0, pady=10)
 
     def sell_etf(self):
         """
