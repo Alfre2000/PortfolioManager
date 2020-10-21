@@ -6,7 +6,7 @@ from functions import *
 class EtfList(ttk.Frame):
     """Class representing the frame conteining the ETF list"""
 
-    def __init__(self, root, portfolio):
+    def __init__(self, root):
         """
         Initialize the class given a root Frame and the portfolio object.
         :param root: ttk.Frame
@@ -14,7 +14,7 @@ class EtfList(ttk.Frame):
         :return None
         """
         super().__init__(root)
-        self.p = portfolio
+        self.p = root.p
         self.app = root.app
         self.names = tuple([x for x in self.p.etfs.keys()])
         self.etf_names = StringVar(value=self.names)

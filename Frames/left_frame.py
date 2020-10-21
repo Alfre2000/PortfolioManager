@@ -6,18 +6,17 @@ from functions import *
 class LeftFrame(ttk.Frame):
     """Class representing the left frame of the GUI"""
 
-    def __init__(self, root, app, portfolio):
+    def __init__(self, root, app):
         """
-        Initialize the class given a root Frame, the App Frame and the portfolio object.
+        Initialize the class given a root Frame and the App Frame.
         :param root: ttk.Frame 
         :param app: ttk.Frame
-        :param portfolio: Portfolio
         :return None 
         """
         super().__init__(root)
         self.app = app
         self.c_frame = self.app.central_frame
-        self.p = portfolio
+        self.p = self.app.p
         ttk.Button(self, text='Dati Ultimo Giorno', command=self.last_day).grid(row=0, column=0)
         self.graph = StringVar()
         ttk.Radiobutton(self, text='Grafico Valore', command=self.draw_graph, variable=self.graph, value='value').grid(row=2, column=0)
