@@ -314,7 +314,7 @@ class Portfolio:
         ax.legend()
         return  fig, ax
     
-    def bar_chart(self, period, annot=True):
+    def bar_chart(self, period='M', annot=True):
         """
         Draws a bar chart of the Portfolio's gains grouped by the selected period. 
         You can choose between:

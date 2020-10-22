@@ -6,6 +6,9 @@ from functions import *
 class LeftFrame(ttk.Frame):
     """Class representing the left frame of the GUI"""
 
+    BAR_TABLE = {'Mensile': 'M', 'Settimanale': 'W', 'Annuale': 'Y'}
+    BAR_TABLE_R = {'M': 'Mensile', 'W': 'Settimanale', 'Y': 'Annuale'}
+
     def __init__(self, root, app):
         """
         Initialize the class given a root Frame and the App Frame.
@@ -58,10 +61,29 @@ class LeftFrame(ttk.Frame):
         elif var == 'invested':
             fig, ax = self.p.investment_line()
         elif var == 'bar':
-            fig, ax = self.p.bar_chart('M')
+            fig, ax = self.p.bar_chart(**kwargs)
+            if 'period' in kwargs:
+                tf = StringVar(value=self.BAR_TABLE_R[kwargs['period']])
+            else:
+                tf = StringVar(value='Mensile')
+            if 'annot' in kwargs:
+                annot = BooleanVar(value=kwargs['annot'])
+            else:
+                annot = BooleanVar(value=True)
+            frame = ttk.Frame(self.c_frame)
+            frame.pack(side=BOTTOM)
+            self.combo = ttk.Combobox(frame, textvariable=tf, values=('Settimanale','Mensile','Annuale'), state='readonly')
+            self.combo.grid(row=0, column=0, pady=20, padx=20)
+            self.combo.bind('<<ComboboxSelected>>', lambda e: self.select_time_frame(tf, annot))
+            ttk.Checkbutton(frame, text='Annotazioni', variable=annot, onvalue=True, offvalue=False, command=lambda: self.draw_graph(period=self.BAR_TABLE[tf.get()], annot=annot.get())).grid(row=0, column=2, pady=20, padx=20)
+            configure(frame, 0, 3)
         else: # elif var == 'pie'
             fig, ax = self.p.pie_chart()
         graph(fig, self.c_frame)
+    
+    def select_time_frame(self, time_frame, annotations):
+        self.combo.selection_clear()
+        self.draw_graph(period=self.BAR_TABLE[time_frame.get()], annot=annotations.get())
     
     def last_day(self):
         """
