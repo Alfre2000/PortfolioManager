@@ -198,7 +198,7 @@ class Portfolio:
         else:
             return round(profit, 2)
     
-    def equity_line(self, sp500=False, pct=True):
+    def equity_line(self, sp500=False, pct=False):
         """
         Draws an historical series about the Portfolio's gains. If the sp500 parameter is True, the graph of the
         Standard & Poor 500 is added. If the pct parameter is True results will be in percentage form.
