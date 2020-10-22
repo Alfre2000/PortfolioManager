@@ -36,12 +36,15 @@ class LeftFrame(ttk.Frame):
         :return None
         """
         self.app.right_frame.etf_list.clear_box()
-        clear_frame(self.c_frame)
+        self.c_frame = self.app.new_central_frame()
         var = self.graph.get()
         if var == 'value':
             fig, ax = self.p.value_line()
         elif var == 'equity':
             fig, ax = self.p.equity_line()
+            var = BooleanVar(value=True)
+            ck_btn = ttk.Checkbutton(self.c_frame, text='Percentuale', variable=var, onvalue=True, offvalue=False, command=lambda: self.check_buttons(var.get()))
+            ck_btn.pack(side=BOTTOM)
         elif var == 'invested':
             fig, ax = self.p.investment_line()
         elif var == 'bar':
@@ -55,7 +58,7 @@ class LeftFrame(ttk.Frame):
         Shows data (P/L and P/L %) about the last trading day.
         :return None
         """
-        clear_frame(self.c_frame)
+        self.c_frame = self.app.new_central_frame()
         self.clear_radio()
         self.app.right_frame.etf_list.clear_box()
         table = self.p.last_day_table()
@@ -75,7 +78,7 @@ class LeftFrame(ttk.Frame):
         Shows data about investments or portfolio depending on the radiobutton cliccked.
         :return None
         """
-        clear_frame(self.c_frame)
+        self.c_frame = self.app.new_central_frame()
         self.app.right_frame.etf_list.clear_box()
         var = self.graph.get()
         if var == 'inv_table':
@@ -94,6 +97,13 @@ class LeftFrame(ttk.Frame):
             for x, col in enumerate(table.columns):
                 ttk.Label(self.c_frame, text=table.loc[y, col]).grid(row=y+2, column=x)
         configure(self.c_frame, len(table.index)+2, len(table.columns))
+
+    def check_buttons(self, var):
+        if self.graph.get() == 'equity':
+            fig, ax = self.p.equity_line(pct=var)
+            self.c_frame = self.app.new_central_frame()
+            graph(fig, self.c_frame)
+            
     
     def clear_radio(self):
         """

@@ -16,6 +16,7 @@ class EtfList(ttk.Frame):
         super().__init__(root)
         self.p = root.p
         self.app = root.app
+        self.c_frame = self.app.central_frame
         self.names = tuple([x for x in self.p.etfs.keys()])
         self.etf_names = StringVar(value=self.names)
         self.lbox = Listbox(self, listvariable=self.etf_names, height=6)
@@ -33,9 +34,9 @@ class EtfList(ttk.Frame):
         :return None
         """
         self.app.left_frame.clear_radio()
-        clear_frame(self.app.central_frame)
+        self.c_frame = self.app.new_central_frame()
         fig, ax = self.p.get_etf_by_name(etf).equity_line()
-        graph(fig, self.app.central_frame)
+        graph(fig, self.c_frame)
     
     def clear_box(self):
         """
