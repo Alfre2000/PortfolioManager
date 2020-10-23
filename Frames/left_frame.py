@@ -103,7 +103,7 @@ class LeftFrame(ttk.Frame):
         if len(self.p.etfs) > 0:
             table = self.p.last_day_table()
             ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
-            ttk.Label(self.c_frame, text=self.p.data.index[-1].date().strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
+            ttk.Label(self.c_frame, text=self.p.data.index[-1].strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
             ttk.Label(self.c_frame, text='Ticker').grid(row=2, column=0)
             ttk.Label(self.c_frame, text='Profit/Loss (€)').grid(row=2, column=1)
             ttk.Label(self.c_frame, text='Profit/Loss (%)').grid(row=2, column=2)

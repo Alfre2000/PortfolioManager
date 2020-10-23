@@ -148,12 +148,14 @@ class Portfolio:
         assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
         assert isinstance(pct, bool), 'Error! The pct parameter must be boolean.'
         if day == 'today':
-            day = self.data.index[-1].date()
-        assert self.data.index[-1].date() >= day >= self.data.index[0].date(), 'Invalid Date'
+            day = self.data.index[-1]
+        assert self.data.index[-1] >= day >= self.data.index[0], 'Invalid Date'
         day = self._first_good_date(day)
-        if day == self.data.index[0].date():
+        if day == self.data.index[0]:
+            day = day
             return round(self.data.loc[day, 'Profit/Loss%'], 2) if pct else round(self.data.loc[day, 'Profit/Loss'], 2) 
         else:
+            day = day
             return round(self.data.loc[day, 'Gains%'], 2) if pct else  round(self.data.loc[day, 'Gains'], 2)
     
     def value(self, day='today'):
@@ -164,8 +166,8 @@ class Portfolio:
         """
         assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
         if day == 'today':
-            day = self.data.index[-1].date()
-        if self.data.index[-1].date() >= day >= self.data.index[0].date():
+            day = self.data.index[-1]
+        if self.data.index[-1] >= day >= self.data.index[0]:
             day = self._first_good_date(day)
             return round(self.data.loc[day, 'Value'], 2)
         else:
@@ -183,11 +185,11 @@ class Portfolio:
         assert isinstance(date_ini, date), 'Error! You have to pass a datetime.date istance to date parameters.'
         assert isinstance(pct, bool), 'Error! The pct parameter must be boolean.'
         if date_fin == 'today':
-            date_fin = self.data.index[-1].date()
-        assert date_ini >= self.data.index[0].date(), 'Error ! Invalid Initial Date'
-        assert date_fin >= self.data.index[0].date(), 'Error ! Invalid Final Date'
+            date_fin = self.data.index[-1]
+        assert date_ini >= self.data.index[0], 'Error ! Invalid Initial Date'
+        assert date_fin >= self.data.index[0], 'Error ! Invalid Final Date'
         date_fin = self._first_good_date(date_fin)
-        if date_ini == self.data.index[0].date():
+        if date_ini == self.data.index[0]:
             profit = self.data.loc[date_fin, 'Profit/Loss']
         else:
             #date_ini = self._first_good_date(self._first_good_date(date_ini) - timedelta(1))
@@ -293,8 +295,8 @@ class Portfolio:
         fig = plt.figure(figsize=(4,2), dpi=200)
         ax = fig.add_subplot(111)
         ax.plot(self.data['Value'], alpha=0.8, lw=1.2, color="green", label='Value')
-        ax.scatter([x.date() for x in marks[marks['Marks']>0].index], marks[marks['Marks']>0]['Val'], marker='^', s=20, c="b", label="Buy")
-        ax.scatter([x.date() for x in marks[marks['Marks']<0].index], marks[marks['Marks']<0]['Val'], marker='v', s=20, c="r", label="Sell")
+        ax.scatter([x for x in marks[marks['Marks']>0].index], marks[marks['Marks']>0]['Val'], marker='^', s=20, c="b", label="Buy")
+        ax.scatter([x for x in marks[marks['Marks']<0].index], marks[marks['Marks']<0]['Val'], marker='v', s=20, c="r", label="Sell")
         ax.set_xlabel('Time')
         ax.set_ylabel('Portfolio\'s Value (€)')
         ax.set_title('Portfolio\'s Value (€) - Daily')
@@ -330,7 +332,9 @@ class Portfolio:
         assert isinstance(annot, bool), 'Error! Annot parameter must be boolean'
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         periods = {"M": ("Monthly","Months"), "Y": ("Yearly", "Years"), "W": ("Weekly", "Weeks")}
-        sample = pd.concat([self.data.head(1), self.data.resample(period).last()])
+        data = self.data.copy()
+        data.set_index(pd.to_datetime(data.index), inplace=True)
+        sample = pd.concat([data.head(1), data.resample(period).last()])
         sample['Var%'] = (sample['Profit/Loss'] - sample['Profit/Loss'].shift(1)) / sample['Value'].shift(1) * 100 
         sample.dropna(inplace=True)
         colors = sample['Var%'].apply(lambda x: "green" if x > 0 else "red")
@@ -345,10 +349,12 @@ class Portfolio:
             labels = [x for x in sample.index.year]
             ax.set_ylim(sample['Var%'].min()-2,sample['Var%'].max()+2)  
         elif period == "W":
-            sample_M = pd.concat([self.data.head(1), self.data.resample("M").last()])
-            ax.set_xticks(np.arange(0, len(sample), 4))
-            labels = [m + "-" + y for m, y in zip([months[x-1] for x in sample_M.index.month], [str(x) for x in sample_M.index.year])]
-            labels[0] = months[months.index(labels[0][:-5]) - 1] + labels[0][-5:]
+            sample_M = pd.concat([data.head(1), data.resample("M").last()])
+            ax.set_xticks(np.arange(2, len(sample_M)*4+2, 4))
+            labels = [m + "-" + y for m, y in zip([months[x-1] for x in sample_M.index.month[1:]], [str(x) for x in sample_M.index.year[1:]])]
+            m = months[int(months.index(labels[-1][:-5])) + 1] if int(months.index(labels[-1][:-5])) + 1 != 12 else months[0]
+            y = int(labels[-1][-4:]) if m != 0 else int(labels[-1][-4:]+1)
+            labels.append(m + '-' + str(y))
         else:
             labels = [m + "-" + y for m, y in zip([months[x-1] for x in sample.index.month], [str(x) for x in sample.index.year])]
         ax.set_xticklabels(labels)

@@ -1,3 +1,4 @@
+from time import strftime
 import yfinance as yf
 import datetime
 from datetime import date, timedelta
@@ -120,7 +121,9 @@ class ETF:
         """
         mon_morning = date.today().weekday() == 0 and datetime.datetime.now().hour < 10
         if os.path.isfile(f'ETFs/{self.ticker_name}.csv'):
-            self.data = pd.read_csv(f'ETFs/{self.ticker_name}.csv', index_col='Date', parse_dates=True)
+            self.data = pd.read_csv(f'ETFs/{self.ticker_name}.csv', parse_dates=True)
+            self.data['Date'] = self.data['Date'].apply(lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2])))
+            self.data.set_index('Date', inplace=True)
             if self.ticker is not None and not self.sold():
                 if self.data['OK'][-1] == True:
                     if date.today() != self.data.index[-1] and date.today().weekday() not in [5, 6] and not mon_morning:
@@ -149,7 +152,7 @@ class ETF:
         if datetime.datetime.today().hour < 18 and self.data.index[-1] == date.today():
             self.data['OK'][-1] = False
 
-        self.data.to_csv(f'ETFs/{self.ticker_name}.csv')
+        #self.data.to_csv(f'ETFs/{self.ticker_name}.csv')
   
     def sell(self, sell_date, sell_price, commissions):
         """
@@ -185,7 +188,7 @@ class ETF:
         :return: float
         """
         if day == 'today':
-            day = self.data.index[-1].date()
+            day = self.data.index[-1]
         day = self._first_good_date(day)
         if (not self.sold() and day > self.buy_date) or (self.sold() and self.sell_date > day > self.buy_date):
             if pct:
@@ -204,7 +207,7 @@ class ETF:
         if day == 'today':
             if self.sold():
                 return 0
-            day = self.data.index[-1].date()
+            day = self.data.index[-1]
         if (not self.sold() and day > self.buy_date) or (self.sold() and self.sell_date > day > self.buy_date):
             return round(self.data.loc[self._first_good_date(day), "Close"] * self.n_shares, 2)
         else:
@@ -219,7 +222,7 @@ class ETF:
         :return: float
         """
         if date_fin == 'today':
-            date_fin = self.data.index[-1].date()
+            date_fin = self.data.index[-1]
         date_ini = self._first_good_date(date_ini) - timedelta(1)
         date_fin = self._first_good_date(date_fin)
         if pct:
