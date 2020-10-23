@@ -17,16 +17,7 @@ def graph(fig, frame):
     canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
     frame.rowconfigure(0, weight=1)
     frame.columnconfigure(0, weight=1)
-
-def clear_frame(frame):
-    """
-    Clears the frame destroing every children widget. 
-    :param frame: ttk.Frame
-    :return None
-    """
-    for widget in frame.winfo_children():
-        widget.destroy()
-        
+    
 def configure(frame, rows, columns):
     """
     Configure the frame given the number of rows and columns it is divided in.

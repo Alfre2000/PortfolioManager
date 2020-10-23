@@ -198,7 +198,7 @@ class Portfolio:
         else:
             return round(profit, 2)
     
-    def equity_line(self, sp500=False, pct=True):
+    def equity_line(self, sp500=False, pct=False):
         """
         Draws an historical series about the Portfolio's gains. If the sp500 parameter is True, the graph of the
         Standard & Poor 500 is added. If the pct parameter is True results will be in percentage form.
@@ -314,7 +314,7 @@ class Portfolio:
         ax.legend()
         return  fig, ax
     
-    def bar_chart(self, period, annot=True):
+    def bar_chart(self, period='M', annot=True):
         """
         Draws a bar chart of the Portfolio's gains grouped by the selected period. 
         You can choose between:
@@ -451,14 +451,15 @@ class Portfolio:
         """
         idx = set(name.split('-')[0].split('.')[0] for name, etf in self.etfs.items() if not etf.sold()).union(['Total'])
         table = pd.DataFrame({'Value':0, 'P/L':0, 'P/L%':0},index=idx)
-        for name, etf in self.etfs.items():
-            if not etf.sold():
-                table.loc[name.split('-')[0].split('.')[0], 'P/L'] += etf.get_gain()
-                table.loc[name.split('-')[0].split('.')[0], 'Value'] += etf.get_value(date.today()-timedelta(1))
-        table['P/L%'] = round(table['P/L'] / table['Value'] * 100, 2)
-        table.loc['Total', 'P/L'] = table['P/L'].sum()
-        table.loc['Total', 'P/L%'] = self.gains(pct=True)
-        return table.sort_values('Value', 0, ascending=False)
+        if len(self.etfs) > 0:
+            for name, etf in self.etfs.items():
+                if not etf.sold():
+                    table.loc[name.split('-')[0].split('.')[0], 'P/L'] += etf.get_gain()
+                    table.loc[name.split('-')[0].split('.')[0], 'Value'] += etf.get_value(date.today()-timedelta(1))
+            table['P/L%'] = round(table['P/L'] / table['Value'] * 100, 2)
+            table.loc['Total', 'P/L'] = table['P/L'].sum()
+            table.loc['Total', 'P/L%'] = self.gains(pct=True)
+            return table.sort_values('Value', 0, ascending=False)
 
     def refresh(self):
         """

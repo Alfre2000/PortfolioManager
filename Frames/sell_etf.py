@@ -6,13 +6,13 @@ from datetime import date
 class SellEtf(ttk.Frame):
     """Class representing a Frame responsable for the selling of an ETF"""
 
-    def __init__(self, root, portfolio):
+    def __init__(self, root):
         """
-        Given the master and the Portfolio instaciate a class handling the selling function
-        :param portfolio: Portfolio
+        Given the master instaciate a class handling the selling function
+        :param root: ttk.Frame
         """
         super().__init__(root)
-        self.p = portfolio
+        self.p = root.p
         ttk.Label(self, text='VENDI ETF').grid(row=0, column=0, columnspan=2, pady=10)
         ttk.Label(self, text='Ticker', anchor='w', justify='left').grid(row=1, column=0, padx=5, pady=5)
         ttk.Label(self, text='Data Vendita', anchor='w', justify='left').grid(row=2, column=0, padx=5, pady=5)

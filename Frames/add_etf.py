@@ -7,13 +7,14 @@ from datetime import date
 class AddEtf(ttk.Frame):
     """Class representing a Frame responsable for the adding of an ETF"""
 
-    def __init__(self, root, portfolio):
+    def __init__(self, root):
         """
-        Given the master and the Portfolio instaciate a class handling the adding function
-        :param portfolio: Portfolio
+        Given the master instaciate a class handling the adding function
+        :param root: ttk.Frame
         """
         super().__init__(root)
-        self.p = portfolio
+        self.p = root.p
+        self.root = root
         ttk.Label(self, text='AGGIUNGI ETF').grid(row=0, column=0, columnspan=2, pady=10)
         ttk.Label(self, text='Ticker', anchor='w', justify='left').grid(row=1, column=0, padx=5, pady=5)
         ttk.Label(self, text='Data Acquisto', anchor='w', justify='left').grid(row=2, column=0, padx=5, pady=5)
@@ -46,8 +47,10 @@ class AddEtf(ttk.Frame):
             self.p.add_etf(ETF(self.tickerVar.get(), date(int(day[2]), int(day[1]), int(day[0])), self.nVar.get(), self.priceVar.get(), self.commVar.get()))     
             self.tickerVar.set('')
             self.dateVar.set('')
+            self.nVar.set('')
             self.priceVar.set('')
             self.commVar.set('')
             self.result.configure(text='ETF aggiunto !')
+            self.root.etf_list.refresh()
         except:
             self.result.configure(text='Errore !')   
