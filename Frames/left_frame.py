@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from functions import *
+from datetime import date
 
 
 class LeftFrame(ttk.Frame):
@@ -82,6 +83,12 @@ class LeftFrame(ttk.Frame):
         graph(fig, self.c_frame)
     
     def select_time_frame(self, time_frame, annotations):
+        """
+        Calls the draw graph function setting the proper parameters based on the time frame and annotations choice.
+        :param time_frame: tkinter.StringVar
+        :param annotations: tkinter.BooleanVar
+        :return None
+        """
         self.combo.selection_clear()
         self.draw_graph(period=self.BAR_TABLE[time_frame.get()], annot=annotations.get())
     
@@ -93,17 +100,21 @@ class LeftFrame(ttk.Frame):
         self.c_frame = self.app.new_central_frame()
         self.clear_radio()
         self.app.right_frame.etf_list.clear_box()
-        table = self.p.last_day_table()
-        ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
-        ttk.Label(self.c_frame, text=self.p.data.index[-1].date().strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
-        ttk.Label(self.c_frame, text='Ticker').grid(row=2, column=0)
-        ttk.Label(self.c_frame, text='Profit/Loss (€)').grid(row=2, column=1)
-        ttk.Label(self.c_frame, text='Profit/Loss (%)').grid(row=2, column=2)
-        for i, etf in enumerate(table.index):
-            ttk.Label(self.c_frame, text=etf).grid(row=i+3, column=0)
-            ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L"],2)} €').grid(row=i+3, column=1)
-            ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L%"],2)} %').grid(row=i+3, column=2)
-        configure(self.c_frame, len(table.index)+4, 3)
+        if len(self.p.etfs) > 0:
+            table = self.p.last_day_table()
+            ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
+            ttk.Label(self.c_frame, text=self.p.data.index[-1].date().strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
+            ttk.Label(self.c_frame, text='Ticker').grid(row=2, column=0)
+            ttk.Label(self.c_frame, text='Profit/Loss (€)').grid(row=2, column=1)
+            ttk.Label(self.c_frame, text='Profit/Loss (%)').grid(row=2, column=2)
+            for i, etf in enumerate(table.index):
+                ttk.Label(self.c_frame, text=etf).grid(row=i+3, column=0)
+                ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L"],2)} €').grid(row=i+3, column=1)
+                ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L%"],2)} %').grid(row=i+3, column=2)
+            configure(self.c_frame, len(table.index)+4, 3)
+        else:
+            ttk.Label(self.c_frame, text='INSERISCI UN ETF PRIMA DI CLICCARE QUALSIASI COSA\n ALTRIMENTI IMPAZZISCE TUTTO!!').grid(row=0,column=0) 
+            configure(self.c_frame, 1, 1)
     
     def draw_table(self):
         """

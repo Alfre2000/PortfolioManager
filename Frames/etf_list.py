@@ -44,3 +44,17 @@ class EtfList(ttk.Frame):
         :return None
         """
         self.lbox.select_clear(0,len(self.names)-1)
+    
+    def refresh(self):
+        """
+        Refresh the ETFs list adding the new one.
+        :return None
+        """
+        self.names = tuple([x for x in self.p.etfs.keys()])
+        self.etf_names = StringVar(value=self.names)
+        self.lbox = Listbox(self, listvariable=self.etf_names, height=6)
+        self.lbox.grid(row=0, column=0)
+        self.lbox.bind('<<ListboxSelect>>', lambda e: self.etf_graph(self.names[self.lbox.curselection()[0]]))
+        self.scroll = ttk.Scrollbar(self, orient=VERTICAL, command=self.lbox.yview)
+        self.lbox.configure(yscrollcommand=self.scroll.set)
+        self.scroll.grid(row=0, column=1)
