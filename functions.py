@@ -1,5 +1,6 @@
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from tkinter import *
+from datetime import date
 
 
 def graph(fig, frame):
@@ -30,3 +31,12 @@ def configure(frame, rows, columns):
         frame.rowconfigure(row, weight=1)
     for col in range(columns):
         frame.columnconfigure(col, weight=1)
+
+def date_from_text(string):
+    """
+    Convert a string text in the 'day-month-year' format into a datetime.date object.
+    :param string: str
+    :return datetime.date
+    """
+    s = list(map(int, string.split('-')))
+    return date(s[2], s[1], s[0])

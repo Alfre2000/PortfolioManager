@@ -1,7 +1,7 @@
 from tkinter import * 
 from tkinter import ttk
 from etf import ETF
-from datetime import date
+from functions import * 
 
 
 class AddEtf(ttk.Frame):
@@ -42,9 +42,8 @@ class AddEtf(ttk.Frame):
         When the Add button is clicked try adding the ETF. Display the result on the adjacent label.
         :return None
         """
-        day = self.e.get().split('-')
         try:
-            self.p.add_etf(ETF(self.tickerVar.get(), date(int(day[2]), int(day[1]), int(day[0])), self.nVar.get(), self.priceVar.get(), self.commVar.get()))     
+            self.p.add_etf(ETF(self.tickerVar.get(), date_from_text(self.e.get()), self.nVar.get(), self.priceVar.get(), self.commVar.get()))     
             self.tickerVar.set('')
             self.dateVar.set('')
             self.nVar.set('')

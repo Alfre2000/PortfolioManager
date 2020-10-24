@@ -48,6 +48,8 @@ def main():
     root = Tk()
     root.title('Portfolio Manager by Dodo')
     root.geometry("1400x700")
+    img = PhotoImage(file='Images/Icon.png')
+    root.tk.call('wm', 'iconphoto', root._w, img)
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
     app = App(root)

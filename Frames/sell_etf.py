@@ -1,6 +1,6 @@
+from functions import *
 from tkinter import *
 from tkinter import ttk
-from datetime import date
 
 
 class SellEtf(ttk.Frame):
@@ -36,9 +36,8 @@ class SellEtf(ttk.Frame):
         When the Add button is clicked try selling the ETF. Display the result on the adjacent label.
         :return None
         """
-        day = self.e.get().split('-')
         try:
-            self.p.sell_etf(self.tickerVar.get(), date(int(day[2]), int(day[1]), int(day[0])), self.priceVar.get(), self.commVar.get())       
+            self.p.sell_etf(self.tickerVar.get(), date_from_text(self.e.get()), self.priceVar.get(), self.commVar.get())       
             self.tickerVar.set('')
             self.dateVar.set('')
             self.priceVar.set('')

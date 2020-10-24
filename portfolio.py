@@ -350,7 +350,7 @@ class Portfolio:
             ax.set_ylim(sample['Var%'].min()-2,sample['Var%'].max()+2)  
         elif period == "W":
             sample_M = pd.concat([data.head(1), data.resample("M").last()])
-            ax.set_xticks(np.arange(2, len(sample_M)*4+2, 4))
+            ax.set_xticks(np.arange(-2, len(sample_M)*4-2, 4))
             labels = [m + "-" + y for m, y in zip([months[x-1] for x in sample_M.index.month[1:]], [str(x) for x in sample_M.index.year[1:]])]
             m = months[int(months.index(labels[-1][:-5])) + 1] if int(months.index(labels[-1][:-5])) + 1 != 12 else months[0]
             y = int(labels[-1][-4:]) if m != 0 else int(labels[-1][-4:]+1)

@@ -36,7 +36,9 @@ class LeftFrame(ttk.Frame):
     
     def draw_graph(self, **kwargs):
         """
-        Draws a graph on the central frame given the radiobutton that has been selected.
+        Redirect to different functions for drawing the graph on the central frame given the radiobutton that has been selected.
+        For some easy graph graph it draws them right away.
+        :param kwargs: dict
         :return None
         """
         self.app.right_frame.etf_list.clear_box()
@@ -44,47 +46,90 @@ class LeftFrame(ttk.Frame):
         var = self.graph.get()
         if var == 'value':
             fig, ax = self.p.value_line()
+            graph(fig, self.c_frame)
         elif var == 'equity':
-            fig, ax = self.p.equity_line(**kwargs)
-            if 'pct' in kwargs:
-                pct = BooleanVar(value=kwargs['pct'])
-            else:
-                pct = BooleanVar()
-            if 'sp500' in kwargs:
-                sp500 = BooleanVar(value=kwargs['sp500'])
-            else:
-                sp500 = BooleanVar()
-            frame = ttk.Frame(self.c_frame)
-            frame.pack(side=BOTTOM)
-            ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=0, pady=20, padx=20)
-            ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
-            configure(frame, 0, 3)
+            self.equity_graph(**kwargs)
         elif var == 'invested':
             fig, ax = self.p.investment_line()
+            graph(fig, self.c_frame)
         elif var == 'bar':
-            fig, ax = self.p.bar_chart(**kwargs)
-            if 'period' in kwargs:
-                tf = StringVar(value=self.BAR_TABLE_R[kwargs['period']])
-            else:
-                tf = StringVar(value='Mensile')
-            if 'annot' in kwargs:
-                annot = BooleanVar(value=kwargs['annot'])
-            else:
-                annot = BooleanVar(value=True)
-            frame = ttk.Frame(self.c_frame)
-            frame.pack(side=BOTTOM)
-            self.combo = ttk.Combobox(frame, textvariable=tf, values=('Settimanale','Mensile','Annuale'), state='readonly')
-            self.combo.grid(row=0, column=0, pady=20, padx=20)
-            self.combo.bind('<<ComboboxSelected>>', lambda e: self.select_time_frame(tf, annot))
-            ttk.Checkbutton(frame, text='Annotazioni', variable=annot, onvalue=True, offvalue=False, command=lambda: self.draw_graph(period=self.BAR_TABLE[tf.get()], annot=annot.get())).grid(row=0, column=2, pady=20, padx=20)
-            configure(frame, 0, 3)
+            self.bar_chart(**kwargs)
         else: # elif var == 'pie'
-            fig, ax = self.p.pie_chart()
+            self.pie_chart(**kwargs)
+    
+    def equity_graph(self, **kwargs):
+        """
+        Draws the equity graph on the central frame based on the arguments passed as parameters.
+        :param kwargs: dict
+        :return None
+        """
+        fig, ax = self.p.equity_line(**kwargs)
+        if 'pct' in kwargs:
+            pct = BooleanVar(value=kwargs['pct'])
+        else:
+            pct = BooleanVar()
+        if 'sp500' in kwargs:
+            sp500 = BooleanVar(value=kwargs['sp500'])
+        else:
+            sp500 = BooleanVar()
+        frame = ttk.Frame(self.c_frame)
+        frame.pack(side=BOTTOM)
+        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=0, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
+        configure(frame, 0, 3)
+        graph(fig, self.c_frame)
+    
+    def bar_chart(self, **kwargs):
+        """
+        Draws the bar chart on the central frame based on the arguments passed as parameters.
+        :param kwargs: dict
+        :return None
+        """
+        fig, ax = self.p.bar_chart(**kwargs)
+        if 'period' in kwargs:
+            tf = StringVar(value=self.BAR_TABLE_R[kwargs['period']])
+        else:
+            tf = StringVar(value='Mensile')
+        if 'annot' in kwargs:
+            annot = BooleanVar(value=kwargs['annot'])
+        else:
+            annot = BooleanVar(value=True)
+        frame = ttk.Frame(self.c_frame)
+        frame.pack(side=BOTTOM)
+        self.combo = ttk.Combobox(frame, textvariable=tf, values=('Settimanale','Mensile','Annuale'), state='readonly')
+        self.combo.grid(row=0, column=0, pady=20, padx=20)
+        self.combo.bind('<<ComboboxSelected>>', lambda e: self.select_time_frame(tf, annot))
+        ttk.Checkbutton(frame, text='Annotazioni', variable=annot, onvalue=True, offvalue=False, command=lambda: self.draw_graph(period=self.BAR_TABLE[tf.get()], annot=annot.get())).grid(row=0, column=2, pady=20, padx=20)
+        configure(frame, 0, 3)
+        graph(fig, self.c_frame)
+    
+    def pie_chart(self, **kwargs):
+        """
+        Draws the pie chart on the central frame based on the arguments passed as parameters.
+        :param kwargs: dict
+        :return None
+        """
+        fig, ax = self.p.pie_chart(**kwargs)
+        if 'pct' in kwargs:
+            pct = BooleanVar(value=kwargs['pct'])
+        else:
+            pct = BooleanVar(value=True)
+        if 'day' in kwargs:
+            day = StringVar(value=kwargs['day'].strftime('%d-%m-%Y'))
+        else:
+            day = StringVar(value=date.today().strftime('%d-%m-%Y'))
+        frame = ttk.Frame(self.c_frame)
+        frame.pack(side=BOTTOM)
+        ttk.Label(frame, text='Data', anchor='w', justify='left').grid(row=0, column=0, rowspan=2, padx=20)
+        ttk.Entry(frame, textvariable=day, width=10).grid(row=0, column=1, pady=(12, 3))
+        ttk.Button(frame, text='Aggiorna', command=lambda : self.draw_graph(pct=pct.get(), day=date_from_text(day.get()))).grid(row=1, column=1, pady=(3,12))
+        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), day=date_from_text(day.get()))).grid(row=0, column=3, rowspan=2, pady=20, padx=20)
+        configure(frame, 2, 3)
         graph(fig, self.c_frame)
     
     def select_time_frame(self, time_frame, annotations):
         """
-        Calls the draw graph function setting the proper parameters based on the time frame and annotations choice.
+        Calls the bar chart function setting the proper parameters based on the time frame and annotations choice.
         :param time_frame: tkinter.StringVar
         :param annotations: tkinter.BooleanVar
         :return None
