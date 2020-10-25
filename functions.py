@@ -44,14 +44,14 @@ def date_from_text(string):
 def clear_selection(inputWidget, inputFrame):
     """
     Clears the button selection leaving selected only the button from the inputFrame parameter.
-    Possible inputWidget parameters: 'PortfolioGraphs' - 'LastDay' - 'Tables' - 'EtfGraphs'.
+    Possible inputWidget parameters: 'PortfolioGraphs' - 'Button' - 'Tables' - 'EtfGraphs'.
     :param inputWidget: str 
     :param inputFrame: ttk.Frame
     :return None
     """
     if inputWidget == 'PortfolioGraphs' or inputWidget == 'Tables':
         inputFrame.app.right_frame.etf_list.clear_box()
-    elif inputWidget == 'LastDay':
+    elif inputWidget == 'Button':
         inputFrame.clear_radio()
         inputFrame.app.right_frame.etf_list.clear_box()
     elif inputWidget == 'EtfGraphs':

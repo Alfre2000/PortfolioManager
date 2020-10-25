@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import ttk
+
+from matplotlib.pyplot import text
 from functions import *
 from datetime import date
 
@@ -30,7 +32,7 @@ class LeftFrame(ttk.Frame):
         ttk.Radiobutton(self, text='Grafico a Torta', command=self.pie_chart, variable=self.graph, value='pie').grid(row=6, column=0)
         ttk.Radiobutton(self, text='Tabella Investimenti', command=self.draw_table, variable=self.graph, value='inv_table').grid(row=8, column=0)
         ttk.Radiobutton(self, text='Tabella Portafoglio', command=self.draw_table, variable=self.graph, value='port_table').grid(row=9, column=0)
-        ttk.Button(self, text='Statistiche', command=self.graph).grid(row=11, column=0)
+        ttk.Button(self, text='Statistiche', command=self.show_stats).grid(row=11, column=0)
         ttk.Button(self, text='Quit', command=root.quit).grid(row=13, column=0)
         configure(self, 14, 1)
     
@@ -140,7 +142,7 @@ class LeftFrame(ttk.Frame):
         Shows data (P/L and P/L %) about the last trading day.
         :return None
         """
-        clear_selection('LastDay', self)
+        clear_selection('Button', self)
         if len(self.p.etfs) > 0:
             table = self.p.last_day_table()
             ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
@@ -180,6 +182,35 @@ class LeftFrame(ttk.Frame):
             for x, col in enumerate(table.columns):
                 ttk.Label(self.c_frame, text=table.loc[y, col]).grid(row=y+2, column=x)
         configure(self.c_frame, len(table.index)+2, len(table.columns))
+    
+    def show_stats(self, day='today'):
+        """
+        Shows statistitcs about portfolio given the given date. 
+        :return None
+        """
+        clear_selection('Button', self)
+        if day == 'today':
+            day = self.p.data.index[-1]
+            dayVar = StringVar(value=date.today().strftime('%d-%m-%Y'))
+        else:
+            day = self.p._first_good_date(day)
+            dayVar = StringVar(value=day.strftime('%d-%m-%Y'))
+        ttk.Label(self.c_frame, text="STATISTICHE PORTAFOGLIO").grid(row=0, column=0, columnspan=2)
+        ttk.Label(self.c_frame, text="Quantità investita:").grid(row=1, column=0)
+        ttk.Label(self.c_frame, text=f'{self.p.invested_amount(day)} €').grid(row=1, column=1)
+        ttk.Label(self.c_frame, text="Valore del portafoglio:").grid(row=2, column=0)
+        ttk.Label(self.c_frame, text=f'{self.p.value(day)} €').grid(row=2, column=1)
+        ttk.Label(self.c_frame, text="Profitto / Perdita (€):").grid(row=3, column=0)
+        ttk.Label(self.c_frame, text=f'{self.p.profit_loss(day)} €').grid(row=3, column=1)
+        ttk.Label(self.c_frame, text="Profitto / Perdita (%):").grid(row=4, column=0)
+        ttk.Label(self.c_frame, text=f'{self.p.profit_loss(day, True)} %').grid(row=4, column=1)
+        ttk.Label(self.c_frame, text="Profitto / Perdita annualizzato (%):").grid(row=5, column=0)
+        ttk.Label(self.c_frame, text=f'{self.p.annualized_gains(day)} %').grid(row=5, column=1)
+        ttk.Label(self.c_frame, text="Data:").grid(row=6, column=0, padx=(70,0), pady=(30,0))
+        ttk.Entry(self.c_frame, textvariable=dayVar, width=12).grid(row=6, column=1, padx=(0,70), pady=(30,0))
+        ttk.Button(self.c_frame, text='Aggiorna', command=lambda: self.show_stats(day=date_from_text(dayVar.get()))).grid(row=7, column=0, columnspan=2)
+        configure(self.c_frame, 8, 2)
+        
     
     def clear_radio(self):
         """

@@ -28,11 +28,6 @@ class App:
         
         self.left_frame.last_day()
 
-    def stats(self):
-        self.new_central_frame()
-        self.clear_radio()
-        self.right_frame.etf_list.clear_box()
-    
     def new_central_frame(self):
         """
         Creates a new central frame in order to be able to show new things on it.

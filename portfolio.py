@@ -88,22 +88,50 @@ class Portfolio:
         os.remove(f'ETFs/{etf_name}.csv')
         self.refresh()
         
-    def invested_amount(self):
+    def invested_amount(self, day='today'):
         """
         Calculates amount that was invested by summing every etf's initial investment.
+        :param day: datetime.date
         :return: float 
         """
-        return self.data['Invested'][-1]      
+        assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
+        if day == 'today':
+            day = self.data.index[-1]
+        if self.data.index[-1] >= day >= self.data.index[0]:
+            day = self._first_good_date(day)
+            return round(self.data.loc[day, 'Invested'], 2)
+        else:
+            return 0
     
-    def profit_loss(self, pct=False):
+    def profit_loss(self, day='today', pct=False):
         """
         Calculates the profit or loss accumulated since the beginning of the investments. 
-        If pct is True the result will be in percentage
+        If pct is True the result will be in percentage.
+        :param day: datetime.date
         :param pct: float
         :return: float 
         """
         assert isinstance(pct, bool), 'Error! The pct parameter must be boolean.'
-        return round(self.data['Profit/Loss%'][-1], 2) if pct else round(self.data['Profit/Loss'][-1], 2)
+        assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
+        if day == 'today':
+            day = self.data.index[-1]
+        if self.data.index[-1] >= day >= self.data.index[0]:
+            day = self._first_good_date(day)
+            if pct:
+                return round(self.data.loc[day, 'Profit/Loss%'], 2)
+            else:
+                return round(self.data.loc[day, 'Profit/Loss'], 2)
+        else:
+            return 0
+    
+    def annualized_gains(self, day='today'):
+        assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
+        if day == 'today':
+            day = self.data.index[-1]
+        if self.data.index[-1] >= day >= self.data.index[0]:
+            return 0
+        else:
+            return 0
     
     def get_etfs_list(self):
         """
