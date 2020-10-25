@@ -244,7 +244,7 @@ class ETF:
         """
         return round(self.data['Var%'].median(), 2)
 
-    def equity_line(self, sp500=False, pct=False):
+    def equity_line(self, sp500=False, pct=True):
         """
         Draws an historical series about the price of the ETF. If the sp500 parameter is True, the graph of the
         Standard & Poor 500 is added. If the pct parameter is True results will be in percentage form.

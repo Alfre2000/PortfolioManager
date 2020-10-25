@@ -29,8 +29,8 @@ def configure(frame, rows, columns):
     """
     for row in range(rows):
         frame.rowconfigure(row, weight=1)
-    for col in range(columns):
-        frame.columnconfigure(col, weight=1)
+    for column in range(columns):
+        frame.columnconfigure(column, weight=1)
 
 def date_from_text(string):
     """
@@ -38,5 +38,22 @@ def date_from_text(string):
     :param string: str
     :return datetime.date
     """
-    s = list(map(int, string.split('-')))
-    return date(s[2], s[1], s[0])
+    day, month, year = list(map(int, string.split('-')))
+    return date(year, month, day)
+
+def clear_selection(inputWidget, inputFrame):
+    """
+    Clears the button selection leaving selected only the button from the inputFrame parameter.
+    Possible inputWidget parameters: 'PortfolioGraphs' - 'LastDay' - 'Tables' - 'EtfGraphs'.
+    :param inputWidget: str 
+    :param inputFrame: ttk.Frame
+    :return None
+    """
+    if inputWidget == 'PortfolioGraphs' or inputWidget == 'Tables':
+        inputFrame.app.right_frame.etf_list.clear_box()
+    elif inputWidget == 'LastDay':
+        inputFrame.clear_radio()
+        inputFrame.app.right_frame.etf_list.clear_box()
+    elif inputWidget == 'EtfGraphs':
+        inputFrame.app.left_frame.clear_radio()
+    inputFrame.c_frame = inputFrame.app.new_central_frame()

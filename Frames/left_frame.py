@@ -23,46 +23,42 @@ class LeftFrame(ttk.Frame):
         self.p = self.app.p
         ttk.Button(self, text='Dati Ultimo Giorno', command=self.last_day).grid(row=0, column=0)
         self.graph = StringVar()
-        ttk.Radiobutton(self, text='Grafico Valore', command=self.draw_graph, variable=self.graph, value='value').grid(row=2, column=0)
-        ttk.Radiobutton(self, text='Grafico Equity', command=self.draw_graph, variable=self.graph, value='equity').grid(row=3, column=0)
-        ttk.Radiobutton(self, text='Grafico Investimento', command=self.draw_graph, variable=self.graph, value='invested').grid(row=4, column=0)
-        ttk.Radiobutton(self, text='Grafico a Barre', command=self.draw_graph, variable=self.graph, value='bar').grid(row=5, column=0)
-        ttk.Radiobutton(self, text='Grafico a Torta', command=self.draw_graph, variable=self.graph, value='pie').grid(row=6, column=0)
+        ttk.Radiobutton(self, text='Grafico Valore', command=self.value_line, variable=self.graph, value='value').grid(row=2, column=0)
+        ttk.Radiobutton(self, text='Grafico Equity', command=self.equity_graph, variable=self.graph, value='equity').grid(row=3, column=0)
+        ttk.Radiobutton(self, text='Grafico Investimento', command=self.investment_line, variable=self.graph, value='invested').grid(row=4, column=0)
+        ttk.Radiobutton(self, text='Grafico a Barre', command=self.bar_chart, variable=self.graph, value='bar').grid(row=5, column=0)
+        ttk.Radiobutton(self, text='Grafico a Torta', command=self.pie_chart, variable=self.graph, value='pie').grid(row=6, column=0)
         ttk.Radiobutton(self, text='Tabella Investimenti', command=self.draw_table, variable=self.graph, value='inv_table').grid(row=8, column=0)
         ttk.Radiobutton(self, text='Tabella Portafoglio', command=self.draw_table, variable=self.graph, value='port_table').grid(row=9, column=0)
         ttk.Button(self, text='Statistiche', command=self.graph).grid(row=11, column=0)
         ttk.Button(self, text='Quit', command=root.quit).grid(row=13, column=0)
         configure(self, 14, 1)
     
-    def draw_graph(self, **kwargs):
+    def value_line(self):
         """
-        Redirect to different functions for drawing the graph on the central frame given the radiobutton that has been selected.
-        For some easy graph graph it draws them right away.
-        :param kwargs: dict
+        Draws the value graph on the central frame.
         :return None
         """
-        self.app.right_frame.etf_list.clear_box()
-        self.c_frame = self.app.new_central_frame()
-        var = self.graph.get()
-        if var == 'value':
-            fig, ax = self.p.value_line()
-            graph(fig, self.c_frame)
-        elif var == 'equity':
-            self.equity_graph(**kwargs)
-        elif var == 'invested':
-            fig, ax = self.p.investment_line()
-            graph(fig, self.c_frame)
-        elif var == 'bar':
-            self.bar_chart(**kwargs)
-        else: # elif var == 'pie'
-            self.pie_chart(**kwargs)
+        clear_selection('PortfolioGraphs', self)
+        fig, ax = self.p.value_line()
+        graph(fig, self.c_frame)
     
+    def investment_line(self):
+        """
+        Draws the value graph on the central frame.
+        :return None
+        """
+        clear_selection('PortfolioGraphs', self)
+        fig, ax = self.p.investment_line()
+        graph(fig, self.c_frame)
+
     def equity_graph(self, **kwargs):
         """
         Draws the equity graph on the central frame based on the arguments passed as parameters.
         :param kwargs: dict
         :return None
         """
+        clear_selection('PortfolioGraphs', self)
         fig, ax = self.p.equity_line(**kwargs)
         if 'pct' in kwargs:
             pct = BooleanVar(value=kwargs['pct'])
@@ -74,8 +70,8 @@ class LeftFrame(ttk.Frame):
             sp500 = BooleanVar()
         frame = ttk.Frame(self.c_frame)
         frame.pack(side=BOTTOM)
-        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=0, pady=20, padx=20)
-        ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=0, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
         configure(frame, 0, 3)
         graph(fig, self.c_frame)
     
@@ -85,6 +81,7 @@ class LeftFrame(ttk.Frame):
         :param kwargs: dict
         :return None
         """
+        clear_selection('PortfolioGraphs', self)
         fig, ax = self.p.bar_chart(**kwargs)
         if 'period' in kwargs:
             tf = StringVar(value=self.BAR_TABLE_R[kwargs['period']])
@@ -99,7 +96,7 @@ class LeftFrame(ttk.Frame):
         self.combo = ttk.Combobox(frame, textvariable=tf, values=('Settimanale','Mensile','Annuale'), state='readonly')
         self.combo.grid(row=0, column=0, pady=20, padx=20)
         self.combo.bind('<<ComboboxSelected>>', lambda e: self.select_time_frame(tf, annot))
-        ttk.Checkbutton(frame, text='Annotazioni', variable=annot, onvalue=True, offvalue=False, command=lambda: self.draw_graph(period=self.BAR_TABLE[tf.get()], annot=annot.get())).grid(row=0, column=2, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='Annotazioni', variable=annot, onvalue=True, offvalue=False, command=lambda: self.bar_chart(period=self.BAR_TABLE[tf.get()], annot=annot.get())).grid(row=0, column=2, pady=20, padx=20)
         configure(frame, 0, 3)
         graph(fig, self.c_frame)
     
@@ -109,6 +106,7 @@ class LeftFrame(ttk.Frame):
         :param kwargs: dict
         :return None
         """
+        clear_selection('PortfolioGraphs', self)
         fig, ax = self.p.pie_chart(**kwargs)
         if 'pct' in kwargs:
             pct = BooleanVar(value=kwargs['pct'])
@@ -122,8 +120,8 @@ class LeftFrame(ttk.Frame):
         frame.pack(side=BOTTOM)
         ttk.Label(frame, text='Data', anchor='w', justify='left').grid(row=0, column=0, rowspan=2, padx=20)
         ttk.Entry(frame, textvariable=day, width=10).grid(row=0, column=1, pady=(12, 3))
-        ttk.Button(frame, text='Aggiorna', command=lambda : self.draw_graph(pct=pct.get(), day=date_from_text(day.get()))).grid(row=1, column=1, pady=(3,12))
-        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.draw_graph(pct=pct.get(), day=date_from_text(day.get()))).grid(row=0, column=3, rowspan=2, pady=20, padx=20)
+        ttk.Button(frame, text='Aggiorna', command=lambda : self.pie_chart(pct=pct.get(), day=date_from_text(day.get()))).grid(row=1, column=1, pady=(3,12))
+        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.pie_chart(pct=pct.get(), day=date_from_text(day.get()))).grid(row=0, column=3, rowspan=2, pady=20, padx=20)
         configure(frame, 2, 3)
         graph(fig, self.c_frame)
     
@@ -135,16 +133,14 @@ class LeftFrame(ttk.Frame):
         :return None
         """
         self.combo.selection_clear()
-        self.draw_graph(period=self.BAR_TABLE[time_frame.get()], annot=annotations.get())
+        self.bar_chart(period=self.BAR_TABLE[time_frame.get()], annot=annotations.get())
     
     def last_day(self):
         """
         Shows data (P/L and P/L %) about the last trading day.
         :return None
         """
-        self.c_frame = self.app.new_central_frame()
-        self.clear_radio()
-        self.app.right_frame.etf_list.clear_box()
+        clear_selection('LastDay', self)
         if len(self.p.etfs) > 0:
             table = self.p.last_day_table()
             ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
@@ -166,8 +162,7 @@ class LeftFrame(ttk.Frame):
         Shows data about investments or portfolio depending on the radiobutton cliccked.
         :return None
         """
-        self.c_frame = self.app.new_central_frame()
-        self.app.right_frame.etf_list.clear_box()
+        clear_selection('Tables', self)
         var = self.graph.get()
         if var == 'inv_table':
             table = self.p.investments_table()
