@@ -22,6 +22,8 @@ class RightFrame(ttk.Frame):
         self.p = self.app.p
         self.etf_list = EtfList(self)
         self.etf_list.grid(row=0, column=0)
-        AddEtf(self).grid(row=1, column=0)
-        SellEtf(self).grid(row=2, column=0)
+        self.add_etf = AddEtf(self)
+        self.add_etf.grid(row=1, column=0)
+        self.sell_etf = SellEtf(self)
+        self.sell_etf.grid(row=2, column=0)
         configure(self, 3, 1)

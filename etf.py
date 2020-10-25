@@ -11,7 +11,7 @@ import os
 class ETF:
     """Class that rapresent an ETF analizing his performance since the buying date"""
 
-    def __init__(self, ticker, buy_date, n_shares, buy_price, commissions_ini, sell_date=None, sell_price=None, info={}, sell_commissions=0):
+    def __init__(self, ticker, buy_date, n_shares, buy_price, commissions_ini, sell_date=None, sell_price=None, info='ETFs/', sell_commissions=0):
         """
         Initialization of the ETF
         :param ticker: ticker name (str)
@@ -120,8 +120,8 @@ class ETF:
         :return: None
         """
         mon_morning = date.today().weekday() == 0 and datetime.datetime.now().hour < 10
-        if os.path.isfile(f'ETFs/{self.ticker_name}.csv'):
-            self.data = pd.read_csv(f'ETFs/{self.ticker_name}.csv', parse_dates=True)
+        if os.path.isfile(f'{self.info}{self.ticker_name}.csv'):
+            self.data = pd.read_csv(f'{self.info}{self.ticker_name}.csv', parse_dates=True)
             self.data['Date'] = self.data['Date'].apply(lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2])))
             self.data.set_index('Date', inplace=True)
             if self.ticker is not None and not self.sold():

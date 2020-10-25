@@ -19,7 +19,7 @@ class EtfList(ttk.Frame):
         self.c_frame = self.app.central_frame
         self.names = tuple([x for x in self.p.etfs.keys()])
         self.etf_names = StringVar(value=self.names)
-        self.lbox = Listbox(self, listvariable=self.etf_names, height=6)
+        self.lbox = Listbox(self, listvariable=self.etf_names, height=6, justify='center')
         self.lbox.grid(row=0, column=0)
         self.lbox.bind('<<ListboxSelect>>', lambda e: self.list_box_selected())
         self.scroll = ttk.Scrollbar(self, orient=VERTICAL, command=self.lbox.yview)
@@ -64,7 +64,7 @@ class EtfList(ttk.Frame):
         """
         self.names = tuple([x for x in self.p.etfs.keys()])
         self.etf_names = StringVar(value=self.names)
-        self.lbox = Listbox(self, listvariable=self.etf_names, height=6)
+        self.lbox = Listbox(self, listvariable=self.etf_names, height=6, justify='center')
         self.lbox.grid(row=0, column=0)
         self.lbox.bind('<<ListboxSelect>>', lambda e: self.list_box_selected())
         self.scroll = ttk.Scrollbar(self, orient=VERTICAL, command=self.lbox.yview)

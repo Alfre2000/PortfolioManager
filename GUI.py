@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from portfolio import Portfolio
 from Frames.right_frame import RightFrame
 from Frames.left_frame import LeftFrame
@@ -25,6 +26,12 @@ class App:
 
         self.right_frame = RightFrame(self.mainframe, self)
         self.right_frame.grid(row=0, column=6, sticky=(E, N, S, W), padx=15)
+
+        self.menu = Menu(root)
+        self.fileMenu = Menu(self.menu)
+        self.menu.add_cascade(menu=self.fileMenu, label='File')
+        self.fileMenu.add_command(label='Open...', command=self.openFile)
+        root['menu'] = self.menu
         
         self.left_frame.last_day()
 
@@ -37,12 +44,28 @@ class App:
         self.central_frame = ttk.Frame(self.mainframe)
         self.central_frame.grid(row=0, column=1, columnspan=5, sticky=(E, W, N, S), padx=15)
         return self.central_frame
-
+    
+    def openFile(self):
+        """
+        Change the Info file for the portfolio.
+        :return None
+        """
+        filename = filedialog.askopenfilename()
+        self.p = Portfolio(filename)
+        self.left_frame.p = self.p
+        self.right_frame.p = self.p
+        self.right_frame.etf_list.p = self.p
+        self.right_frame.etf_list.refresh()
+        self.right_frame.add_etf.p = self.p
+        self.right_frame.sell_etf.p = self.p
+        self.left_frame.last_day()
 
 def main():
     root = Tk()
     root.title('Portfolio Manager by Dodo')
-    root.geometry("1400x700")
+    root.geometry("1400x700+20+80")
+    root.option_add('*tearOff', FALSE)
+    #root.attributes('-fullscreen', 1)
     img = PhotoImage(file='Images/Icon.png')
     root.tk.call('wm', 'iconphoto', root._w, img)
     root.columnconfigure(0, weight=1)

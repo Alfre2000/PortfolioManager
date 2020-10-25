@@ -121,7 +121,7 @@ class LeftFrame(ttk.Frame):
         frame = ttk.Frame(self.c_frame)
         frame.pack(side=BOTTOM)
         ttk.Label(frame, text='Data', anchor='w', justify='left').grid(row=0, column=0, rowspan=2, padx=20)
-        ttk.Entry(frame, textvariable=day, width=10).grid(row=0, column=1, pady=(12, 3))
+        ttk.Entry(frame, textvariable=day, width=10, justify='center').grid(row=0, column=1, pady=(12, 3))
         ttk.Button(frame, text='Aggiorna', command=lambda : self.pie_chart(pct=pct.get(), day=date_from_text(day.get()))).grid(row=1, column=1, pady=(3,12))
         ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.pie_chart(pct=pct.get(), day=date_from_text(day.get()))).grid(row=0, column=3, rowspan=2, pady=20, padx=20)
         configure(frame, 2, 3)
@@ -207,7 +207,7 @@ class LeftFrame(ttk.Frame):
         ttk.Label(self.c_frame, text="Profitto / Perdita annualizzato (%):").grid(row=5, column=0)
         ttk.Label(self.c_frame, text=f'{self.p.annualized_gains(day)} %').grid(row=5, column=1)
         ttk.Label(self.c_frame, text="Data:").grid(row=6, column=0, padx=(70,0), pady=(30,0))
-        ttk.Entry(self.c_frame, textvariable=dayVar, width=12).grid(row=6, column=1, padx=(0,70), pady=(30,0))
+        ttk.Entry(self.c_frame, textvariable=dayVar, width=12, justify='center').grid(row=6, column=1, padx=(0,70), pady=(30,0))
         ttk.Button(self.c_frame, text='Aggiorna', command=lambda: self.show_stats(day=date_from_text(dayVar.get()))).grid(row=7, column=0, columnspan=2)
         configure(self.c_frame, 8, 2)
         

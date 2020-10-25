@@ -12,9 +12,7 @@ import matplotlib.pylab as pylab
 class Portfolio:
     """Class representing a portfolio of ETFs and his performances during time"""
 
-    INFO = 'Info.csv'
-
-    def __init__(self):
+    def __init__(self, info_file='Info.csv'):
         """
         Class initialization. The paramter neeeded is refering to the info file.
         :param info_file: str
@@ -23,20 +21,22 @@ class Portfolio:
         params = {'axes.titlesize': 'xx-large', 'axes.labelsize': 6, 'font.size':6}
         pylab.rcParams.update(params)
         self.etfs = {}
-        if os.path.isfile(self.INFO):
-            f = pd.read_csv(self.INFO, parse_dates=True)
+        self.infoFile = info_file
+        if os.path.isfile(self.infoFile):
+            f = pd.read_csv(self.infoFile, parse_dates=True)
+            basePath = self.infoFile.split('Info.csv')[0]
             for x in f.index:
                 if not isinstance(f.loc[x, 'sell_date'], str):
                     self.etfs[f.loc[x, 'Name']] = ETF(f.loc[x, 'Name'],datetime.strptime(f.loc[x, 'buy_date'],'%Y-%m-%d').date(),
-                    f.loc[x, 'n_shares'],f.loc[x, 'buy_price'], f.loc[x, 'commissions_ini'])
+                    f.loc[x, 'n_shares'],f.loc[x, 'buy_price'], f.loc[x, 'commissions_ini'], info=f'{basePath}ETFs/')
                 else:
                     self.etfs[f.loc[x, 'Name']] = ETF(f.loc[x, 'Name'],datetime.strptime(f.loc[x, 'buy_date'],'%Y-%m-%d').date(),
                     f.loc[x, 'n_shares'],f.loc[x, 'buy_price'],f.loc[x, 'commissions_ini'],datetime.strptime(str(f.loc[x, 'sell_date']),'%Y-%m-%d').date(),
-                    f.loc[x, 'sell_price'],f.loc[x, 'info'],f.loc[x, 'sell_commissions'])
+                    f.loc[x, 'sell_price'], f'{basePath}ETFs/', f.loc[x, 'sell_commissions'])
         else:
             os.makedirs('ETFs')
             info = pd.DataFrame(columns=['Name','buy_date','n_shares','buy_price','commissions_ini','sell_date','sell_price','info','sell_commissions'])
-            info.to_csv(self.INFO, index=False)
+            info.to_csv(self.infoFile, index=False)
         self.data = pd.DataFrame()
         if len(self.etfs) != 0:
             self.refresh()
@@ -49,9 +49,9 @@ class Portfolio:
         """ 
         assert isinstance(etf, ETF), 'Error! You have to pass an ETF object as an argument'
         self.etfs[etf.ticker_name] = etf
-        f = pd.read_csv(self.INFO, parse_dates=True)
+        f = pd.read_csv(self.infoFile, parse_dates=True)
         f.loc[len(f)] = [etf.ticker_name,etf.buy_date,etf.n_shares, etf.buy_price, etf.commissions[0],etf.sell_date, etf.sell_price, etf.info,  etf.commissions[1]]
-        f.to_csv(self.INFO, index=False)
+        f.to_csv(self.infoFile, index=False)
         self.refresh()
     
     def sell_etf(self, etf_name, sell_date, sell_price, commissions):
@@ -68,11 +68,11 @@ class Portfolio:
         assert isinstance(sell_price, float), 'Sell_price must be float'
         assert isinstance(commissions, float), 'Commissions must be float'
         self.etfs[etf_name].sell(sell_date, sell_price, commissions)
-        new_file = pd.read_csv(self.INFO, index_col='Name')
+        new_file = pd.read_csv(self.infoFile, index_col='Name')
         new_file.loc[etf_name, 'sell_date'] = sell_date
         new_file.loc[etf_name, 'sell_price'] = sell_price
         new_file.loc[etf_name, 'sell_commissions'] = commissions
-        new_file.to_csv(self.INFO)
+        new_file.to_csv(self.infoFile)
         self.refresh()
 
     def remove_etf(self, etf_name):
@@ -83,8 +83,8 @@ class Portfolio:
         """ 
         assert etf_name in self.etfs.keys(), 'ETF not in portfolio'
         self.etfs.pop(etf_name)
-        new_file = pd.read_csv(self.INFO, index_col='Name').drop(etf_name,axis=0)
-        new_file.to_csv(self.INFO)
+        new_file = pd.read_csv(self.infoFile, index_col='Name').drop(etf_name,axis=0)
+        new_file.to_csv(self.infoFile)
         os.remove(f'ETFs/{etf_name}.csv')
         self.refresh()
         
@@ -125,11 +125,20 @@ class Portfolio:
             return 0
     
     def annualized_gains(self, day='today'):
+        """
+        Calculates the annualized returns of the portfolio from the beginning to the date passed as a parameter.
+        :param day: datetime.date
+        :return float
+        """
         assert day == 'today' or isinstance(day, date), 'Error! You have to pass a datetime.date istance to the day parameter.'
         if day == 'today':
             day = self.data.index[-1]
         if self.data.index[-1] >= day >= self.data.index[0]:
-            return 0
+            day = self._first_good_date(day)
+            initialValue = self.invested_amount(day)
+            finalValue = self.value(day)
+            numberOfDays = (day - self.data.index[0]).days
+            return round(((finalValue / initialValue)**(365/numberOfDays) - 1) * 100, 2) 
         else:
             return 0
     
@@ -138,7 +147,7 @@ class Portfolio:
         Print the list of ETFs present in your portfolio
         :return: str 
         """
-        return " - ".join(self.etfs.keys())
+        return list(self.etfs.keys())
 
     def get_etf_by_name(self, ticker):
         """
