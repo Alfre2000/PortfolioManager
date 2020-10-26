@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import font
 from portfolio import Portfolio
 from Frames.right_frame import RightFrame
 from Frames.left_frame import LeftFrame
@@ -10,8 +11,19 @@ from functions import *
 class App:
 
     def __init__(self, root):
-        # s = ttk.Style()
-        # s.configure('Frame1.TFrame', background='red')
+        titleFont = font.Font(family='Helvetica', name='TitleFont', size=30)
+        boldFont = font.Font(family='Helvetica', name='BoldFont', size=15)
+        dateFont = font.Font(family='Helvetica', name='DateFont', size=17, weight='bold', slant='italic')
+        numberFont = font.Font(family='Helvetica', name='NumberFont', size=15)
+        numberFontBold = font.Font(family='Helvetica', name='NumberBoldFont', size=15, weight='bold')
+        titleStyle = ttk.Style()
+        titleStyle.configure('Title.TLabel', foreground='#0a4ac9', font=titleFont)
+        titleStyle.configure('Head.TLabel',foreground='#2464e3', font=boldFont)
+        titleStyle.configure('Date.TLabel', foreground='#2464e3', font=dateFont)
+        titleStyle.configure('Positive.TLabel', foreground='#0b7028', font=numberFont)
+        titleStyle.configure('Negative.TLabel', foreground='#bd0909', font=numberFont)
+        titleStyle.configure('PositiveBold.TLabel', foreground='#0b7028', font=numberFontBold)
+        titleStyle.configure('NegativeBold.TLabel', foreground='#bd0909', font=numberFontBold)
 
         self.p = Portfolio()
         self.mainframe = ttk.Frame(root)

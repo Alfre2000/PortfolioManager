@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import font
 
 from matplotlib.pyplot import text
 from functions import *
@@ -30,7 +31,7 @@ class LeftFrame(ttk.Frame):
         ttk.Radiobutton(self, text='Grafico Investimento', command=self.investment_line, variable=self.graph, value='invested').grid(row=4, column=0)
         ttk.Radiobutton(self, text='Grafico a Barre', command=self.bar_chart, variable=self.graph, value='bar').grid(row=5, column=0)
         ttk.Radiobutton(self, text='Grafico a Torta', command=self.pie_chart, variable=self.graph, value='pie').grid(row=6, column=0)
-        ttk.Separator(self, orient=HORIZONTAL).grid(row=7, column=0, sticky='nswe', padx=(30, 0))
+        ttk.Separator(self, orient=HORIZONTAL).grid(row=7, column=0, sticky='nswe', padx=(20, 0))
         ttk.Radiobutton(self, text='Tabella Investimenti', command=self.draw_table, variable=self.graph, value='inv_table').grid(row=8, column=0)
         ttk.Radiobutton(self, text='Tabella Portafoglio', command=self.draw_table, variable=self.graph, value='port_table').grid(row=9, column=0)
         ttk.Button(self, text='Statistiche', command=self.show_stats).grid(row=11, column=0)
@@ -146,15 +147,28 @@ class LeftFrame(ttk.Frame):
         clear_selection('Button', self)
         if len(self.p.etfs) > 0:
             table = self.p.last_day_table()
-            ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA").grid(row=0, column=0, columnspan=3)
-            ttk.Label(self.c_frame, text=self.p.data.index[-1].strftime('%A %d %B %Y')).grid(row=1, column=0, columnspan=3)
-            ttk.Label(self.c_frame, text='Ticker').grid(row=2, column=0)
-            ttk.Label(self.c_frame, text='Profit/Loss (€)').grid(row=2, column=1)
-            ttk.Label(self.c_frame, text='Profit/Loss (%)').grid(row=2, column=2)
+            ttk.Label(self.c_frame, text="DATI RELATIVI ALL'ULTIMA GIORNATA", style='Title.TLabel').grid(row=0, column=0, columnspan=3, pady=(10,0))
+            ttk.Label(self.c_frame, text=self.p.data.index[-1].strftime('%A %d %B %Y'), style='Date.TLabel').grid(row=1, column=0, columnspan=3)
+            ttk.Label(self.c_frame, text='Ticker', style='Head.TLabel').grid(row=2, column=0)
+            ttk.Label(self.c_frame, text='Profit/Loss (€)', style='Head.TLabel').grid(row=2, column=1)
+            ttk.Label(self.c_frame, text='Profit/Loss (%)', style='Head.TLabel').grid(row=2, column=2)
             for i, etf in enumerate(table.index):
-                ttk.Label(self.c_frame, text=etf).grid(row=i+3, column=0)
-                ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L"],2)} €').grid(row=i+3, column=1)
-                ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L%"],2)} %').grid(row=i+3, column=2)
+                gains = table.loc[etf, "P/L"]
+                if i == len(table.index) - 1:
+                    styleHead = 'Head.TLabel'
+                    ttk.Label(self.c_frame, text=etf, style=styleHead).grid(row=i+3, column=0)
+                    if gains > 0:
+                        styleNumbers = 'PositiveBold.TLabel'
+                    else:
+                        styleNumbers = 'NegativeBold.TLabel'
+                else:
+                    if gains > 0:
+                        styleNumbers = 'Positive.TLabel'
+                    else:
+                        styleNumbers = 'Negative.TLabel'
+                    ttk.Label(self.c_frame, text=etf).grid(row=i+3, column=0)
+                ttk.Label(self.c_frame, text=f'{round(gains,2)} €', style=styleNumbers).grid(row=i+3, column=1)
+                ttk.Label(self.c_frame, text=f'{round(table.loc[etf, "P/L%"],2)} %', style=styleNumbers).grid(row=i+3, column=2)
             configure(self.c_frame, len(table.index)+4, 3)
         else:
             ttk.Label(self.c_frame, text='INSERISCI UN ETF PRIMA DI CLICCARE QUALSIASI COSA\n ALTRIMENTI IMPAZZISCE TUTTO!!').grid(row=0,column=0) 
@@ -169,16 +183,16 @@ class LeftFrame(ttk.Frame):
         var = self.graph.get()
         if var == 'inv_table':
             table = self.p.investments_table()
-            ttk.Label(self.c_frame, text="DATI RELATIVI AGLI INVESTIMENTI").grid(row=0, column=0, columnspan=len(table.columns))
+            ttk.Label(self.c_frame, text="DATI RELATIVI AGLI INVESTIMENTI", style='Title.TLabel').grid(row=0, column=0, columnspan=len(table.columns), pady=(10,0))
             table.insert(1, 'Buying Date', table.index) 
         else:
             table = self.p.portfolio_table()
-            ttk.Label(self.c_frame, text="DATI RELATIVI AL PORTAFOGLIO").grid(row=0, column=0, columnspan=len(table.columns))
+            ttk.Label(self.c_frame, text="DATI RELATIVI AL PORTAFOGLIO", style='Title.TLabel').grid(row=0, column=0, columnspan=len(table.columns))
             table.insert(0, 'Ticker', table.index) 
         table['Idx'] = [x for x in range(len(table))]
         table.set_index('Idx', inplace=True)  
         for i, col in enumerate(table.columns):
-            ttk.Label(self.c_frame, text=col).grid(row=1, column=i)
+            ttk.Label(self.c_frame, text=col, style='Head.TLabel').grid(row=1, column=i)
         for y in table.index:
             for x, col in enumerate(table.columns):
                 ttk.Label(self.c_frame, text=table.loc[y, col]).grid(row=y+2, column=x)
@@ -196,7 +210,7 @@ class LeftFrame(ttk.Frame):
         else:
             day = self.p._first_good_date(day)
             dayVar = StringVar(value=day.strftime('%d-%m-%Y'))
-        ttk.Label(self.c_frame, text="STATISTICHE PORTAFOGLIO").grid(row=0, column=0, columnspan=2)
+        ttk.Label(self.c_frame, text="STATISTICHE PORTAFOGLIO", style='Title.TLabel').grid(row=0, column=0, columnspan=2)
         ttk.Label(self.c_frame, text="Quantità investita:").grid(row=1, column=0)
         ttk.Label(self.c_frame, text=f'{self.p.invested_amount(day)} €').grid(row=1, column=1)
         ttk.Label(self.c_frame, text="Valore del portafoglio:").grid(row=2, column=0)

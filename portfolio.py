@@ -497,7 +497,7 @@ class Portfolio:
         Creates a table showing statistics for each ETF type about the last trading day
         :return pandas.DataFrame
         """
-        idx = set(name.split('-')[0].split('.')[0] for name, etf in self.etfs.items() if not etf.sold()).union(['Total'])
+        idx = set(name.split('-')[0].split('.')[0] for name, etf in self.etfs.items() if not etf.sold()).union(['Totale'])
         table = pd.DataFrame({'Value':0, 'P/L':0, 'P/L%':0},index=idx)
         if len(self.etfs) > 0:
             for name, etf in self.etfs.items():
@@ -505,8 +505,8 @@ class Portfolio:
                     table.loc[name.split('-')[0].split('.')[0], 'P/L'] += etf.get_gain()
                     table.loc[name.split('-')[0].split('.')[0], 'Value'] += etf.get_value(date.today()-timedelta(1))
             table['P/L%'] = round(table['P/L'] / table['Value'] * 100, 2)
-            table.loc['Total', 'P/L'] = table['P/L'].sum()
-            table.loc['Total', 'P/L%'] = self.gains(pct=True)
+            table.loc['Totale', 'P/L'] = table['P/L'].sum()
+            table.loc['Totale', 'P/L%'] = self.gains(pct=True)
             return table.sort_values('Value', 0, ascending=False)
 
     def refresh(self):
