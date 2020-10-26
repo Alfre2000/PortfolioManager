@@ -254,6 +254,7 @@ class Portfolio:
 
         # Plot the graph
         fig = plt.figure(figsize=(4, 2), dpi=200)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         ax.set_xlabel('Time')
         if pct:
@@ -303,6 +304,7 @@ class Portfolio:
         """
         inv, marks = self._get_marks()
         fig = plt.figure(figsize=(4, 2), dpi=200)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         ax.plot(inv['Invested'], lw=1.2, color="blue", label='Invested', marker="o", markersize=3, markerfacecolor="grey")
         ax.set_xlabel('Time')
@@ -330,6 +332,7 @@ class Portfolio:
         marks = self._get_marks(False)
         marks['Val'] = self.data['Value']
         fig = plt.figure(figsize=(4,2), dpi=200)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         ax.plot(self.data['Value'], alpha=0.8, lw=1.2, color="green", label='Value')
         ax.scatter([x for x in marks[marks['Marks']>0].index], marks[marks['Marks']>0]['Val'], marker='^', s=20, c="b", label="Buy")
@@ -376,6 +379,7 @@ class Portfolio:
         sample.dropna(inplace=True)
         colors = sample['Var%'].apply(lambda x: "green" if x > 0 else "red")
         fig = plt.figure(figsize=(4,2), dpi=200)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         ax.set_xlabel(periods[period][1])
         ax.set_ylabel("Var (%)")
@@ -431,6 +435,7 @@ class Portfolio:
         explode = [0 if x != max(wgt_values) else 0.06 for x in wgt_values]
         fig = plt.figure(figsize=(4,2), dpi=200)
         ax = fig.add_subplot(111)
+        fig.patch.set_facecolor('#ececec')
         if pct:
             wedges, texts, autotexts = ax.pie(wgt_values, explode=explode, labels=vals.keys(), autopct='%1.1f%%')
             plt.setp(autotexts, size=5)

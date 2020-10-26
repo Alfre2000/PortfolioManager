@@ -23,17 +23,18 @@ class LeftFrame(ttk.Frame):
         self.app = app
         self.c_frame = self.app.central_frame
         self.p = self.app.p
-        ttk.Button(self, text='Dati Ultimo Giorno', command=self.last_day).grid(row=0, column=0)
+        ttk.Button(self, text='Dati Ultimo Giorno', command=self.last_day).grid(row=0, column=0, pady=(20,0))
         self.graph = StringVar()
         ttk.Radiobutton(self, text='Grafico Valore', command=self.value_line, variable=self.graph, value='value').grid(row=2, column=0)
         ttk.Radiobutton(self, text='Grafico Equity', command=self.equity_graph, variable=self.graph, value='equity').grid(row=3, column=0)
         ttk.Radiobutton(self, text='Grafico Investimento', command=self.investment_line, variable=self.graph, value='invested').grid(row=4, column=0)
         ttk.Radiobutton(self, text='Grafico a Barre', command=self.bar_chart, variable=self.graph, value='bar').grid(row=5, column=0)
         ttk.Radiobutton(self, text='Grafico a Torta', command=self.pie_chart, variable=self.graph, value='pie').grid(row=6, column=0)
+        ttk.Separator(self, orient=HORIZONTAL).grid(row=7, column=0, sticky='nswe', padx=(30, 0))
         ttk.Radiobutton(self, text='Tabella Investimenti', command=self.draw_table, variable=self.graph, value='inv_table').grid(row=8, column=0)
         ttk.Radiobutton(self, text='Tabella Portafoglio', command=self.draw_table, variable=self.graph, value='port_table').grid(row=9, column=0)
         ttk.Button(self, text='Statistiche', command=self.show_stats).grid(row=11, column=0)
-        ttk.Button(self, text='Quit', command=root.quit).grid(row=13, column=0)
+        ttk.Button(self, text='Quit', command=root.quit).grid(row=13, column=0, pady=(0,20))
         configure(self, 14, 1)
     
     def value_line(self):

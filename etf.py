@@ -7,6 +7,7 @@ import matplotlib.dates as dates
 import pandas as pd
 import numpy as np
 import os
+from functions import date_from_text
 
 class ETF:
     """Class that rapresent an ETF analizing his performance since the buying date"""
@@ -122,14 +123,16 @@ class ETF:
         mon_morning = date.today().weekday() == 0 and datetime.datetime.now().hour < 10
         if os.path.isfile(f'{self.info}{self.ticker_name}.csv'):
             self.data = pd.read_csv(f'{self.info}{self.ticker_name}.csv', parse_dates=True)
-            self.data['Date'] = self.data['Date'].apply(lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2])))
+            self.data['Date'] = self.data['Date'].apply(lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2].split(' ')[0])))
             self.data.set_index('Date', inplace=True)
             if self.ticker is not None and not self.sold():
                 if self.data['OK'][-1] == True:
                     if date.today() != self.data.index[-1] and date.today().weekday() not in [5, 6] and not mon_morning:
-                        self.data = pd.concat([self.data, self.ticker.history(start=self.data.index[-1] + timedelta(1))])
+                        newData = self.get_new_data(self.data.index[-1] + timedelta(1))
+                        self.data = pd.concat([self.data, newData])
                 else:
-                    self.data = pd.concat([self.data.iloc[:-1], self.ticker.history(start=self.data.index[-1].date())]) 
+                    newData = self.get_new_data(self.data.index[-1])
+                    self.data = pd.concat([self.data.iloc[:-1], newData]) 
                 #if date.today() != self.data.index[-1] and date.today().weekday() not in [5, 6]:
                 #    self.data.index[-1] = date.today()
         else:
@@ -152,8 +155,20 @@ class ETF:
         if datetime.datetime.today().hour < 18 and self.data.index[-1] == date.today():
             self.data['OK'][-1] = False
 
-        #self.data.to_csv(f'ETFs/{self.ticker_name}.csv')
-  
+        self.data.to_csv(f'ETFs/{self.ticker_name}.csv')
+    
+    def get_new_data(self, startDate):
+        """
+        Estract date from yahoo finance based on the start date and returns them.
+        :param startDate: datetime.date
+        :return pd.DataFrame
+        """
+        newData = self.ticker.history(start=startDate)
+        newData['Date'] = newData.index
+        newData['Date'] = newData['Date'].apply(lambda x: x.date())
+        newData.set_index('Date', inplace=True)
+        return newData
+
     def sell(self, sell_date, sell_price, commissions):
         """
         Add information about the selling of the ETF. Sets the sell date to the one passad as a parameter
@@ -259,6 +274,7 @@ class ETF:
             else:
                 spy = yf.Ticker("SPY").history(start=self.buy_date, end=self.sell_date)
         fig = plt.figure(figsize=(4,2), dpi=200)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         if pct:
             ax.plot(self.data['Var_from_Ini_%'], color="green", label=self.ticker_name, lw=1.2)
@@ -307,6 +323,7 @@ class ETF:
         colors = sample['Var%'].apply(lambda x: "green" if x > 0 else "red")
         index = np.arange(len(sample['Var%']))
         fig = plt.figure(figsize=(8,4), dpi=250)
+        fig.patch.set_facecolor('#ececec')
         ax = fig.add_axes([0,0,1,1])
         ax.bar(index, sample['Var%'], 0.35, color=colors, alpha=1, label=f"{periods[period][0]} Statistics")
         ax.set_xlabel(periods[period][1])
