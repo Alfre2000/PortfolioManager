@@ -7,7 +7,7 @@ import matplotlib.dates as dates
 import pandas as pd
 import numpy as np
 import os
-from functions import date_from_text
+from functions import date_from_text, nextWeekDay
 
 class ETF:
     """Class that rapresent an ETF analizing his performance since the buying date"""
@@ -120,21 +120,18 @@ class ETF:
         Refresh data about the ETF
         :return: None
         """
-        mon_morning = date.today().weekday() == 0 and datetime.datetime.now().hour < 10
         if os.path.isfile(f'{self.info}{self.ticker_name}.csv'):
             self.data = pd.read_csv(f'{self.info}{self.ticker_name}.csv', parse_dates=True)
-            self.data['Date'] = self.data['Date'].apply(lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2].split(' ')[0])))
+            str_to_date = lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2].split(' ')[0]))
+            self.data = self.data[self.data['Date'] != self.data['Date'].shift(1)]
+            self.data['Date'] = self.data['Date'].apply(str_to_date)
             self.data.set_index('Date', inplace=True)
             if self.ticker is not None and not self.sold():
-                if self.data['OK'][-1] == True:
-                    if date.today() != self.data.index[-1] and date.today().weekday() not in [5, 6] and not mon_morning:
-                        newData = self.get_new_data(self.data.index[-1] + timedelta(1))
-                        self.data = pd.concat([self.data, newData])
-                else:
-                    newData = self.get_new_data(self.data.index[-1])
-                    self.data = pd.concat([self.data.iloc[:-1], newData]) 
-                #if date.today() != self.data.index[-1] and date.today().weekday() not in [5, 6]:
-                #    self.data.index[-1] = date.today()
+                newData = self.get_new_data(self.data.index[-1])
+                for row in newData.index:
+                    if row in self.data.index:
+                        self.data.drop(row, inplace=True)
+                self.data = pd.concat([self.data, newData]) 
         else:
             if self.sold():
                 self.data = self.ticker.history(start=self.buy_date, end=self.sell_date)
@@ -142,6 +139,15 @@ class ETF:
                 self.data = self.ticker.history(start=self.buy_date)
 
         # Completing new stats   
+        self.calculateStats()
+
+        # if datetime.datetime.today().hour < 18 and self.data.index[-1] == date.today():
+        #     self.data['OK'][-1] = False
+
+        self.data.insert(0, 'Date', self.data.index)
+        self.data.to_csv(f'{self.info}{self.ticker_name}.csv', index=False)
+    
+    def calculateStats(self):
         self.data['Prev Close'] = self.data['Close'].shift(1)
         self.data['Var%'] = self.data['Close'].pct_change() * 100
         self.data['Var_from_Ini_%'] = (self.data['Close'] - self.data['Close'][0]) / self.data['Close'][0] * 100
@@ -152,11 +158,6 @@ class ETF:
         self.data['Invested'] = self.initial_investment()
         self.data['OK'] = True
 
-        if datetime.datetime.today().hour < 18 and self.data.index[-1] == date.today():
-            self.data['OK'][-1] = False
-
-        self.data.to_csv(f'ETFs/{self.ticker_name}.csv')
-    
     def get_new_data(self, startDate):
         """
         Estract date from yahoo finance based on the start date and returns them.
@@ -167,6 +168,21 @@ class ETF:
         newData['Date'] = newData.index
         newData['Date'] = newData['Date'].apply(lambda x: x.date())
         newData.set_index('Date', inplace=True)
+        idx = list(newData.index)
+        if len(idx) > 1:
+            if idx[-1] == idx[-2]:
+                idx[-1] = nextWeekDay(idx[-1])
+            newData.index = idx
+        if '.' in self.ticker_name:
+            country = self.ticker_name.split('-')[0].split('.')[1]
+        else:
+            country = 'NY'
+        if country == 'L':
+            EURGBP = yf.Ticker('GBPEUR=X').history(start=date.today()).iloc[-1]['Close']
+            newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] * EURGBP
+        elif country == 'NY':
+            EURUSD = yf.Ticker('EURUSD=X').history(start=date.today()).iloc[-1]['Close']
+            newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] / EURUSD
         return newData
 
     def sell(self, sell_date, sell_price, commissions):
@@ -363,6 +379,4 @@ class ETF:
         string += f"\nPresent Stock Price: {round(self.stock_price(), 2)} €"
         string += f"\nProfit/Loss: {self.profit_loss()} €"
         string += f"\nProfit/Loss (%): {self.profit_loss(pct=True)} %\n"
-        for key, value in self.info:
-            string += f"\n{key}: {value}"
         return string      

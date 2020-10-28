@@ -288,7 +288,7 @@ class Portfolio:
         inv.dropna(inplace=True)
         marks = pd.DataFrame(index=inv.index)
         marks['Marks'] = np.where(inv['Invested'] == inv['Invested'].shift(1), round(inv['Invested'].shift(-1) - inv['Invested'],2), np.nan)
-        marks['Marks'][0] = inv['Invested'][0]
+        marks['Marks'][0] = round(inv['Invested'][0], 2)
         marks['Invested'] = inv['Invested']
         marks.dropna(inplace=True)
         if investment:
@@ -306,7 +306,9 @@ class Portfolio:
         fig = plt.figure(figsize=(4, 2), dpi=200)
         fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
-        ax.plot(inv['Invested'], lw=1.2, color="blue", label='Invested', marker="o", markersize=3, markerfacecolor="grey")
+        investmentValues = inv['Invested']
+        #investmentValues = pd.Series([0], index=[investmentValues.index[0]-timedelta(1)]).append(investmentValues)
+        ax.plot(investmentValues, lw=1.2, color="blue", label='Invested', marker="o", markersize=3, markerfacecolor="grey")
         ax.set_xlabel('Time')
         ax.set_ylabel('Investments (€)')
         ax.set_title('Investment Amount (€) - Daily')
@@ -503,7 +505,7 @@ class Portfolio:
             for name, etf in self.etfs.items():
                 if not etf.sold():
                     table.loc[name.split('-')[0].split('.')[0], 'P/L'] += etf.get_gain()
-                    table.loc[name.split('-')[0].split('.')[0], 'Value'] += etf.get_value(date.today()-timedelta(1))
+                    table.loc[name.split('-')[0].split('.')[0], 'Value'] += etf.get_value(self.data.index[-1]-timedelta(1))
             table['P/L%'] = round(table['P/L'] / table['Value'] * 100, 2)
             table.loc['Totale', 'P/L'] = table['P/L'].sum()
             table.loc['Totale', 'P/L%'] = self.gains(pct=True)
@@ -515,6 +517,13 @@ class Portfolio:
         Gains - Gains%
         :return: None
         """
+        lastDate = max(etf.data.index[-1] for etf in self.etfs.values())
+        for etf in self.etfs.values():
+            isLastDayMissing = etf.data.index[-1] < lastDate
+            if isLastDayMissing and not etf.sold():
+                lastDay = pd.DataFrame([etf.data.iloc[-1]], columns=etf.data.columns, index=[lastDate])
+                etf.data = etf.data.append(lastDay)
+                etf.calculateStats()
         # Get Profit/Loss series
         p_l = pd.DataFrame()
         for name, etf in self.etfs.items():
@@ -532,6 +541,6 @@ class Portfolio:
         self.data['Invested'] = inv.sum(axis=1)
 
         self.data['Profit/Loss%'] = self.data['Profit/Loss'] / self.data['Invested'] * 100 # Calculates the Profit/Loss (%)
-        self.data['Value'] = self.data['Invested'] + self.data['Profit/Loss']
+        self.data['Value'] = round(self.data['Invested'] + self.data['Profit/Loss'], 2)
         self.data['Gains'] = self.data['Profit/Loss'] - self.data['Profit/Loss'].shift(1)
         self.data['Gains%'] = self.data['Gains'] / self.data['Value'].shift(1) * 100

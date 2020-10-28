@@ -43,7 +43,7 @@ class AddEtf(ttk.Frame):
         :return None
         """
         try:
-            self.p.add_etf(ETF(self.tickerVar.get(), date_from_text(self.e.get()), self.nVar.get(), self.priceVar.get(), self.commVar.get()))     
+            self.p.add_etf(ETF(self.tickerVar.get(), date_from_text(self.e.get()), self.nVar.get(), self.priceVar.get(), self.commVar.get(), info=self.p.infoFile.split('Info.csv')[0]+'ETFs/'))     
             self.tickerVar.set('')
             self.dateVar.set('')
             self.nVar.set('')

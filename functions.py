@@ -1,6 +1,6 @@
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from tkinter import *
-from datetime import date
+from datetime import date, timedelta
 
 
 def graph(fig, frame):
@@ -60,3 +60,15 @@ def clear_selection(inputWidget, inputFrame):
     elif inputWidget == 'EtfGraphs':
         inputFrame.app.left_frame.clear_radio()
     inputFrame.c_frame = inputFrame.app.new_central_frame()
+
+def nextWeekDay(day):
+    """
+    Calculates the next week day from the date givena as a parameter.
+    :param day: datetime.date 
+    :return datetime.date
+    """
+    weekDay = day.weekday()
+    if weekDay < 4 or weekDay == 6:
+        return day + timedelta(1)
+    else:
+        return day + timedelta(7-weekDay)
