@@ -153,13 +153,30 @@ class Portfolio:
         """
         Returns the ETF object corrsponding to the given ticker. Remember that at the end of the ticket name a "-"
         and a number ar added. Check the etfs list to be sure about the names.
-        : param ticker: str
+        :param ticker: str
         :return: ETF
         """
         try:
             return self.etfs[ticker]
         except KeyError:
             raise KeyError(f'<{ticker}> ticker not in Portfolio. Check "get_etf_list" to get the full list of ETFs.')
+    
+    def portfolioCountries(self):
+        """
+        Determines how many countries is the portfolio based.
+        :return: str
+        """
+        countries = []
+        for etfName in self.etfs.keys():
+            if '.' in etfName:
+                country = etfName.split('-')[0].split('.')[1]
+                countries.append(country)
+            else:
+                countries.append('NY')
+        if len(set(countries)) > 1:
+            return 'Mix'
+        else:
+            return list(set(countries))[0]
 
     def _first_good_date(self, day):
         """
