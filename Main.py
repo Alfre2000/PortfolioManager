@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 from time import sleep
 from portfolio import Portfolio
@@ -21,7 +21,7 @@ args = parser.parse_args()
 p = Portfolio(args.file)
 country = p.portfolioCountries()
 print('Starting the program:')
-print(f'Country: {country}')
+print('Country: ' + country)
 
 OK = False
 while True:
@@ -32,7 +32,8 @@ while True:
             print(f'Portfolio aggiornato ! --> {time.strftime("%A %d %B %Y - %H:%M")}')
             print(p.data.tail(1))
             print("----------------------------------------------------------------------------")
-            OK = True
+            if country != 'Mix':
+                OK = True
     else:
         OK = False
     print(f'{time.strftime("%A %d %B %Y - %H:%M")} Sleeping...')

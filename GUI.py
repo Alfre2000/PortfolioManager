@@ -6,11 +6,12 @@ from portfolio import Portfolio
 from Frames.right_frame import RightFrame
 from Frames.left_frame import LeftFrame
 from functions import *
+import argparse
 
 
 class App:
 
-    def __init__(self, root):
+    def __init__(self, root, infoFile):
         titleFont = font.Font(family='Helvetica', name='TitleFont', size=30)
         boldFont = font.Font(family='Helvetica', name='BoldFont', size=15)
         dateFont = font.Font(family='Helvetica', name='DateFont', size=17, weight='bold', slant='italic')
@@ -25,7 +26,7 @@ class App:
         titleStyle.configure('PositiveBold.TLabel', foreground='#0b7028', font=numberFontBold)
         titleStyle.configure('NegativeBold.TLabel', foreground='#bd0909', font=numberFontBold)
 
-        self.p = Portfolio()
+        self.p = Portfolio(infoFile)
         self.mainframe = ttk.Frame(root)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 
@@ -78,7 +79,7 @@ class App:
         self.right_frame.sell_etf.p = self.p
         self.left_frame.last_day()
 
-def main():
+def main(file):
     root = Tk()
     root.title('Portfolio Manager by Dodo')
     root.geometry("1400x700+20+80")
@@ -87,9 +88,12 @@ def main():
     root.tk.call('wm', 'iconphoto', root._w, img)
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
-    app = App(root)
+    app = App(root, file)
     root.mainloop()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Portafoglio Manager.')
+    parser.add_argument('-f', '--file', type=str, required=False, default='Info.csv', help='Percorso per il file Info.csv del portafoglio')
+    args = parser.parse_args()
+    main(args.file)

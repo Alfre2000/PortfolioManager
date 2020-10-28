@@ -35,7 +35,7 @@ class LeftFrame(ttk.Frame):
         ttk.Radiobutton(self, text='Tabella Investimenti', command=self.draw_table, variable=self.graph, value='inv_table').grid(row=8, column=0)
         ttk.Radiobutton(self, text='Tabella Portafoglio', command=self.draw_table, variable=self.graph, value='port_table').grid(row=9, column=0)
         ttk.Button(self, text='Statistiche', command=self.show_stats).grid(row=11, column=0)
-        ttk.Button(self, text='Quit', command=root.quit).grid(row=13, column=0, pady=(0,20))
+        ttk.Button(self, text='Chiudi', command=root.quit).grid(row=13, column=0, pady=(0,20))
         configure(self, 14, 1)
     
     def value_line(self):
