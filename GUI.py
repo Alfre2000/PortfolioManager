@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import font
 from portfolio import Portfolio
-from Frames.right_frame import RightFrame
-from Frames.left_frame import LeftFrame
+from frames.right_frame import RightFrame
+from frames.left_frame import LeftFrame
 from functions import *
 import argparse
 
@@ -12,17 +14,24 @@ import argparse
 class App:
 
     def __init__(self, root, infoFile):
+        textFont = font.Font(family='Helvetica', name='TextFont', size=15)
         titleFont = font.Font(family='Helvetica', name='TitleFont', size=30)
         boldFont = font.Font(family='Helvetica', name='BoldFont', size=15)
         dateFont = font.Font(family='Helvetica', name='DateFont', size=17, weight='bold', slant='italic')
         numberFont = font.Font(family='Helvetica', name='NumberFont', size=15)
+        numberFontS = font.Font(family='Helvetica', name='NumberFontS', size=12)
         numberFontBold = font.Font(family='Helvetica', name='NumberBoldFont', size=15, weight='bold')
         titleStyle = ttk.Style()
         titleStyle.configure('Title.TLabel', foreground='#0a4ac9', font=titleFont)
         titleStyle.configure('Head.TLabel',foreground='#2464e3', font=boldFont)
+        titleStyle.configure('Text.TLabel', font=textFont)
         titleStyle.configure('Date.TLabel', foreground='#2464e3', font=dateFont)
         titleStyle.configure('Positive.TLabel', foreground='#0b7028', font=numberFont)
+        titleStyle.configure('Zero.TLabel', font=numberFont)
         titleStyle.configure('Negative.TLabel', foreground='#bd0909', font=numberFont)
+        titleStyle.configure('PositiveS.TLabel', foreground='#0b7028', font=numberFontS)
+        titleStyle.configure('ZeroS.TLabel', font=numberFontS)
+        titleStyle.configure('NegativeS.TLabel', foreground='#bd0909', font=numberFontS)
         titleStyle.configure('PositiveBold.TLabel', foreground='#0b7028', font=numberFontBold)
         titleStyle.configure('NegativeBold.TLabel', foreground='#bd0909', font=numberFontBold)
 
@@ -84,8 +93,11 @@ def main(file):
     root.title('Portfolio Manager by Dodo')
     root.geometry("1400x700+20+80")
     root.option_add('*tearOff', FALSE)
-    img = PhotoImage(file='Images/Icon.png')
-    root.tk.call('wm', 'iconphoto', root._w, img)
+    try:
+        img = PhotoImage(file='frames/Icon.png')
+        root.tk.call('wm', 'iconphoto', root._w, img)
+    except:
+        pass
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
     app = App(root, file)

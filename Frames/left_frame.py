@@ -164,6 +164,8 @@ class LeftFrame(ttk.Frame):
                 else:
                     if gains > 0:
                         styleNumbers = 'Positive.TLabel'
+                    elif gains == 0:
+                        styleNumbers = 'Zero.TLabel'
                     else:
                         styleNumbers = 'Negative.TLabel'
                     ttk.Label(self.c_frame, text=etf).grid(row=i+3, column=0)
@@ -195,7 +197,17 @@ class LeftFrame(ttk.Frame):
             ttk.Label(self.c_frame, text=col, style='Head.TLabel').grid(row=1, column=i)
         for y in table.index:
             for x, col in enumerate(table.columns):
-                ttk.Label(self.c_frame, text=table.loc[y, col]).grid(row=y+2, column=x)
+                if 'P/L' in col:
+                    gains = table.loc[y, col]
+                    if gains > 0:
+                        styleNumbers = 'PositiveS.TLabel'
+                    elif gains == 0:
+                        styleNumbers = 'ZeroS.TLabel'
+                    else:
+                        styleNumbers = 'NegativeS.TLabel'
+                    ttk.Label(self.c_frame, text=table.loc[y, col], style=styleNumbers).grid(row=y+2, column=x)
+                else:
+                    ttk.Label(self.c_frame, text=table.loc[y, col], style='Text.TLabel').grid(row=y+2, column=x)
         configure(self.c_frame, len(table.index)+2, len(table.columns))
     
     def show_stats(self, day='today'):

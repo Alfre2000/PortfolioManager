@@ -22,7 +22,8 @@ class SellEtf(ttk.Frame):
         self.dateVar = StringVar(value='Es. 10-12-2020')
         self.priceVar = DoubleVar()
         self.commVar = DoubleVar()
-        ttk.Entry(self, textvariable=self.tickerVar, width=12).grid(row=1, column=1)    
+        ttk.Entry(self, textvariable=self.tickerVar, width=12).grid(row=1, column=1)  
+        self.tickerVar.trace_add('write', lambda *args: self.tickerVar.set(self.tickerVar.get().upper()))
         self.e = ttk.Entry(self, textvariable=self.dateVar, width=12)
         self.e.grid(row=2, column=1)   
         ttk.Entry(self, textvariable=self.priceVar, width=12).grid(row=3, column=1)           
@@ -43,5 +44,6 @@ class SellEtf(ttk.Frame):
             self.priceVar.set('')
             self.commVar.set('')
             self.result.configure(text='ETF sold !')
+            self.root.app.left_frame.last_day()
         except:
             self.result.configure(text='Errore !')

@@ -134,9 +134,9 @@ class ETF:
                 self.data = pd.concat([self.data, newData]) 
         else:
             if self.sold():
-                self.data = self.ticker.history(start=self.buy_date, end=self.sell_date)
+                self.data = self.get_new_data(self.buy_date, self.sell_date)
             else:
-                self.data = self.ticker.history(start=self.buy_date)
+                self.data = self.get_new_data(self.buy_date)
 
         # Completing new stats   
         self.calculateStats()
@@ -158,13 +158,17 @@ class ETF:
         self.data['Invested'] = self.initial_investment()
         self.data['OK'] = True
 
-    def get_new_data(self, startDate):
+    def get_new_data(self, startDate, sellDate=None):
         """
         Estract date from yahoo finance based on the start date and returns them.
         :param startDate: datetime.date
+        :param sellDate: datetime.date
         :return pd.DataFrame
         """
-        newData = self.ticker.history(start=startDate)
+        if sellDate is None:
+            newData = self.ticker.history(start=startDate)
+        else:
+            newData = self.ticker.history(start=startDate, end=sellDate)
         newData['Date'] = newData.index
         newData['Date'] = newData['Date'].apply(lambda x: x.date())
         newData.set_index('Date', inplace=True)
@@ -179,7 +183,10 @@ class ETF:
             country = 'NY'
         if country == 'L':
             EURGBP = yf.Ticker('GBPEUR=X').history(start=date.today()).iloc[-1]['Close']
-            newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] * EURGBP
+            if self.ticker_name.split('.')[0] in ['EZJ']:
+                newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] * EURGBP / 100
+            else:
+                newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] * EURGBP
         elif country == 'NY':
             EURUSD = yf.Ticker('EURUSD=X').history(start=date.today()).iloc[-1]['Close']
             newData[['Open','High','Low','Close']] = newData[['Open','High','Low','Close']] / EURUSD

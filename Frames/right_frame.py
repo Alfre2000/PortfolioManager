@@ -1,9 +1,9 @@
 from functions import configure
 from tkinter import *
 from tkinter import ttk
-from Frames.etf_list import EtfList
-from Frames.add_etf import AddEtf
-from Frames.sell_etf import SellEtf
+from frames.etf_list import EtfList
+from frames.add_etf import AddEtf
+from frames.sell_etf import SellEtf
 
 
 class RightFrame(ttk.Frame):

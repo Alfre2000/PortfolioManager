@@ -27,6 +27,7 @@ class AddEtf(ttk.Frame):
         self.priceVar = DoubleVar()
         self.commVar = DoubleVar()
         ttk.Entry(self, textvariable=self.tickerVar, width=12).grid(row=1, column=1)    
+        self.tickerVar.trace_add('write', lambda *args: self.tickerVar.set(self.tickerVar.get().upper()))
         self.e = ttk.Entry(self, textvariable=self.dateVar, width=12)
         self.e.grid(row=2, column=1)   
         ttk.Entry(self, textvariable=self.nVar, width=12).grid(row=3, column=1)           
@@ -51,5 +52,6 @@ class AddEtf(ttk.Frame):
             self.commVar.set('')
             self.result.configure(text='ETF aggiunto !')
             self.root.etf_list.refresh()
+            self.root.app.left_frame.last_day()
         except:
             self.result.configure(text='Errore !')   

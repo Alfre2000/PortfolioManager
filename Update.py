@@ -18,8 +18,11 @@ parser = argparse.ArgumentParser(description='Aggiorna il portafoglio per tenere
 parser.add_argument('-f', '--file', type=str, required=False, default='Info.csv', help='Percorso per il file Info.csv del portafoglio')
 args = parser.parse_args()
 
-p = Portfolio(args.file)
-country = p.portfolioCountries()
+try:
+    p = Portfolio(args.file)
+    country = p.portfolioCountries()
+except IndexError:
+    raise IndexError('Percorso al file (Info.csv) errato !')
 print('Starting the program:')
 print('Country: ' + country)
 
