@@ -31,12 +31,15 @@ while True:
     time = datetime.now()
     if doRefresh(time, country):
         if OK is False:
-            p = Portfolio(args.file)
-            print(f'Portfolio aggiornato ! --> {time.strftime("%A %d %B %Y - %H:%M")}')
-            print(p.data.tail(1))
-            print("----------------------------------------------------------------------------")
-            if country != 'Mix':
-                OK = True
+            try:
+                p = Portfolio(args.file)
+                print(f'Portfolio aggiornato ! --> {time.strftime("%A %d %B %Y - %H:%M")}')
+                print(p.data.tail(1))
+                print("----------------------------------------------------------------------------")
+                if country != 'Mix':
+                    OK = True
+            except ConnectionError:
+                print('Errore di Connessione ! Impossibile aggiornare il Portafoglio.')
     else:
         OK = False
     print(f'{time.strftime("%A %d %B %Y - %H:%M")} Sleeping...')

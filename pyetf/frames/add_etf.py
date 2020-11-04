@@ -1,7 +1,7 @@
 from tkinter import * 
 from tkinter import ttk
-from etf import ETF
-from functions import * 
+from pyetf.finance.etf import ETF
+from pyetf.functions import * 
 
 
 class AddEtf(ttk.Frame):

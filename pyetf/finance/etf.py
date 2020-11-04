@@ -7,7 +7,7 @@ import matplotlib.dates as dates
 import pandas as pd
 import numpy as np
 import os
-from functions import date_from_text, nextWeekDay
+from pyetf.functions import date_from_text, nextWeekDay
 
 class ETF:
     """Class that rapresent an ETF analizing his performance since the buying date"""

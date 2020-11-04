@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from functions import *
+from pyetf.functions import *
 
 
 class EtfList(ttk.Frame):

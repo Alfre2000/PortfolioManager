@@ -1,9 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import font
-
 from matplotlib.pyplot import text
-from functions import *
+from pyetf.functions import *
 from datetime import date
 
 

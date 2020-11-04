@@ -1,5 +1,5 @@
 import os
-from etf import ETF
+from pyetf.finance.etf import ETF
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

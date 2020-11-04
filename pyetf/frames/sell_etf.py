@@ -1,4 +1,4 @@
-from functions import *
+from pyetf.functions import *
 from tkinter import *
 from tkinter import ttk
 
