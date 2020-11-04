@@ -51,6 +51,7 @@ class Portfolio:
         self.etfs[etf.ticker_name] = etf
         f = pd.read_csv(self.infoFile, parse_dates=True)
         f.loc[len(f)] = [etf.ticker_name,etf.buy_date,etf.n_shares, etf.buy_price, etf.commissions[0],etf.sell_date, etf.sell_price, etf.info,  etf.commissions[1]]
+        f.sort_values(by='buy_date', axis=0, inplace=True)
         f.to_csv(self.infoFile, index=False)
         self.refresh()
     
@@ -456,10 +457,10 @@ class Portfolio:
         ax = fig.add_subplot(111)
         fig.patch.set_facecolor('#ececec')
         if pct:
-            wedges, texts, autotexts = ax.pie(wgt_values, explode=explode, labels=vals.keys(), autopct='%1.1f%%')
+            _, texts, autotexts = ax.pie(wgt_values, explode=explode, labels=vals.keys(), autopct='%1.1f%%')
             plt.setp(autotexts, size=5)
         else:
-            wedges, texts, autotexts = ax.pie(wgt_values, explode=explode, labels=vals.keys(), 
+            _, texts, autotexts = ax.pie(wgt_values, explode=explode, labels=vals.keys(), 
                                         autopct=lambda pct: func(pct, wgt_values), pctdistance=0.7)
             plt.setp(autotexts, size=4)
         plt.setp(texts, size=7, family='monospace')

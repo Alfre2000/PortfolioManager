@@ -1,4 +1,4 @@
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import *
 from datetime import date, timedelta
 
@@ -13,11 +13,6 @@ def graph(fig, frame):
     canvas = FigureCanvasTkAgg(fig, master=frame)
     canvas.draw()
     canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
-    # toolbar = NavigationToolbar2Tk(canvas, frame)
-    # toolbar.config(background='#ececec')
-    # toolbar._message_label.config(background='#ececec')
-    # toolbar.update()
-    # canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
     frame.rowconfigure(0, weight=1)
     frame.columnconfigure(0, weight=1)
 

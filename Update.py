@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from time import sleep
-from portfolio import Portfolio
+from pyetf.finance.portfolio import Portfolio
 from datetime import datetime
 import argparse
 
