@@ -10,7 +10,7 @@ def main(file):
     root.geometry("1400x700+20+80")
     root.option_add('*tearOff', FALSE)
     try:
-        img = PhotoImage(file='frames/Icon.png')
+        img = PhotoImage(file='pyetf/frames/Icon.png')
         root.tk.call('wm', 'iconphoto', root._w, img)
     except:
         pass

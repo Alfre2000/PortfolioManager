@@ -268,8 +268,10 @@ class Portfolio:
         #Download Standard and Poors 500 data
         spy = None
         if sp500:
-            spy = yf.Ticker("SPY").history(start=self.data.index[0])
-
+            if sp500 == True:
+                spy = yf.Ticker("SPY").history(start=self.data.index[0])
+            else:
+                spy = yf.Ticker(sp500).history(start=self.data.index[0])
         # Plot the graph
         fig = plt.figure(figsize=(4, 2), dpi=200)
         fig.patch.set_facecolor('#ececec')
