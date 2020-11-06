@@ -4,7 +4,7 @@ from tkinter import *
 from pyetf.frames.app import App
 import argparse
 
-def main(file):
+def main(file, server=False):
     root = Tk()
     root.title('Portfolio Manager by Dodo')
     root.geometry("1400x700+20+80")
@@ -16,12 +16,13 @@ def main(file):
         pass
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
-    app = App(root, file)
+    app = App(root, file, server)
     root.mainloop()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Portafoglio Manager.')
     parser.add_argument('-f', '--file', type=str, required=False, default='Info.csv', help='Percorso per il file Info.csv del portafoglio')
+    parser.add_argument('-s', '--server', required=False, action='store_true', help='Connect to server')
     args = parser.parse_args()
-    main(args.file)
+    main(args.file, args.server)

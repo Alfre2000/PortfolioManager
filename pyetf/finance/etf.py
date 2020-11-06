@@ -1,6 +1,6 @@
 from time import strftime
 import yfinance as yf
-import datetime
+from pyetf.server.client import getFile
 from datetime import date, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
@@ -12,7 +12,7 @@ from pyetf.functions import date_from_text, nextWeekDay
 class ETF:
     """Class that rapresent an ETF analizing his performance since the buying date"""
 
-    def __init__(self, ticker, buy_date, n_shares, buy_price, commissions_ini, sell_date=None, sell_price=None, info='ETFs/', sell_commissions=0):
+    def __init__(self, ticker, buy_date, n_shares, buy_price, commissions_ini, sell_date=None, sell_price=None, info='ETFs/', sell_commissions=0, server=False):
         """
         Initialization of the ETF
         :param ticker: ticker name (str)
@@ -37,7 +37,14 @@ class ETF:
             self.ticker = yf.Ticker(self.ticker_name.split('-')[0])
         except ConnectionError:
             self.ticker = None
-        self.refresh()
+        if server:
+            try:
+                self.server_refresh()
+            except ConnectionError:
+                print('Errore di Connessione al Server. Scaricamento dei files da internet.')
+                self.refresh()
+        else:
+            self.refresh()
 
     def initial_value(self):
         """
@@ -157,6 +164,17 @@ class ETF:
         self.data['Present_Value'] = self.data['Close'] * self.n_shares
         self.data['Invested'] = self.initial_investment()
         self.data['OK'] = True
+    
+    def server_refresh(self):
+        savePath = f'{self.info}{self.ticker_name}'
+        paths = self.info.split('/')
+        filePath = '/'.join([paths[-3], paths[-2], paths[-1]]) + self.ticker_name + '.csv'
+        getFile(filePath, savePath)
+        self.data = pd.read_csv(f'{self.info}{self.ticker_name}.csv', parse_dates=True)
+        str_to_date = lambda x: date(int(x.split('-')[0]),int(x.split('-')[1]),int(x.split('-')[2].split(' ')[0]))
+        self.data = self.data[self.data['Date'] != self.data['Date'].shift(1)]
+        self.data['Date'] = self.data['Date'].apply(str_to_date)
+        self.data.set_index('Date', inplace=True)
 
     def get_new_data(self, startDate, sellDate=None):
         """

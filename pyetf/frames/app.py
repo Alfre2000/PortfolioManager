@@ -1,14 +1,13 @@
 from tkinter import ttk
-from tkinter import filedialog
+from tkinter import *
 from tkinter import font
 from pyetf.finance.portfolio import Portfolio
-from pyetf.frames.right_frame import RightFrame
-from pyetf.frames.left_frame import LeftFrame
-from pyetf.functions import *
+from pyetf.frames.main_page import MainPage
+from pyetf.frames.menu.menu_bar import MenuBar
 
 class App:
 
-    def __init__(self, root, infoFile):
+    def __init__(self, root, infoFile, server):
         textFont = font.Font(family='Helvetica', name='TextFont', size=15)
         titleFont = font.Font(family='Helvetica', name='TitleFont', size=30)
         boldFont = font.Font(family='Helvetica', name='BoldFont', size=15)
@@ -30,55 +29,12 @@ class App:
         titleStyle.configure('PositiveBold.TLabel', foreground='#0b7028', font=numberFontBold)
         titleStyle.configure('NegativeBold.TLabel', foreground='#bd0909', font=numberFontBold)
 
-        self.p = Portfolio(infoFile)
+        self.server = server
+        self.root = root
+        self.p = Portfolio(infoFile, server)
         self.mainframe = ttk.Frame(root)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 
+        self.main_page = MainPage(self)
 
-        self.central_frame = ttk.Frame(self.mainframe)
-
-        self.left_frame = LeftFrame(self.mainframe, self)
-        self.left_frame.grid(row=0, column=0, sticky=(W, N, S, E), padx=15)
-
-        ttk.Separator(self.mainframe, orient=VERTICAL).grid(row=0, column=1, sticky='nswe')
-        self.central_frame.grid(row=0, column=2, columnspan=5, sticky=(E, W, N, S), padx=15)
-
-        ttk.Separator(self.mainframe, orient=VERTICAL).grid(row=0, column=7, sticky='nswe')
-
-        self.right_frame = RightFrame(self.mainframe, self)
-        self.right_frame.grid(row=0, column=8, columnspan=2, sticky=(E, N, S, W), padx=15)
-
-        self.menu = Menu(root)
-        self.fileMenu = Menu(self.menu)
-        self.menu.add_cascade(menu=self.fileMenu, label='File')
-        self.fileMenu.add_command(label='Open...', command=self.openFile)
-        root['menu'] = self.menu
-
-        configure(self.mainframe, 1, 8)
-        
-        self.left_frame.last_day()
-
-    def new_central_frame(self):
-        """
-        Creates a new central frame in order to be able to show new things on it.
-        :reeturn ttk.Frame
-        """
-        self.central_frame.destroy()
-        self.central_frame = ttk.Frame(self.mainframe)
-        self.central_frame.grid(row=0, column=2, columnspan=5, sticky=(E, W, N, S), padx=15)
-        return self.central_frame
-    
-    def openFile(self):
-        """
-        Change the Info file for the portfolio.
-        :return None
-        """
-        filename = filedialog.askopenfilename()
-        self.p = Portfolio(filename)
-        self.left_frame.p = self.p
-        self.right_frame.p = self.p
-        self.right_frame.etf_list.p = self.p
-        self.right_frame.etf_list.refresh()
-        self.right_frame.add_etf.p = self.p
-        self.right_frame.sell_etf.p = self.p
-        self.left_frame.last_day()
+        MenuBar(self)

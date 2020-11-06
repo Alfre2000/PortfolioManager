@@ -12,7 +12,7 @@ import matplotlib.pylab as pylab
 class Portfolio:
     """Class representing a portfolio of ETFs and his performances during time"""
 
-    def __init__(self, info_file='Info.csv'):
+    def __init__(self, info_file='Info.csv', server=False):
         """
         Class initialization. The paramter neeeded is refering to the info file.
         :param info_file: str
@@ -28,11 +28,11 @@ class Portfolio:
             for x in f.index:
                 if not isinstance(f.loc[x, 'sell_date'], str):
                     self.etfs[f.loc[x, 'Name']] = ETF(f.loc[x, 'Name'],datetime.strptime(f.loc[x, 'buy_date'],'%Y-%m-%d').date(),
-                    f.loc[x, 'n_shares'],f.loc[x, 'buy_price'], f.loc[x, 'commissions_ini'], info=f'{basePath}ETFs/')
+                    f.loc[x, 'n_shares'],f.loc[x, 'buy_price'], f.loc[x, 'commissions_ini'], info=f'{basePath}ETFs/', server=server)
                 else:
                     self.etfs[f.loc[x, 'Name']] = ETF(f.loc[x, 'Name'],datetime.strptime(f.loc[x, 'buy_date'],'%Y-%m-%d').date(),
                     f.loc[x, 'n_shares'],f.loc[x, 'buy_price'],f.loc[x, 'commissions_ini'],datetime.strptime(str(f.loc[x, 'sell_date']),'%Y-%m-%d').date(),
-                    f.loc[x, 'sell_price'], f'{basePath}ETFs/', f.loc[x, 'sell_commissions'])
+                    f.loc[x, 'sell_price'], f'{basePath}ETFs/', f.loc[x, 'sell_commissions'], server=server)
         else:
             os.makedirs('ETFs')
             info = pd.DataFrame(columns=['Name','buy_date','n_shares','buy_price','commissions_ini','sell_date','sell_price','info','sell_commissions'])
