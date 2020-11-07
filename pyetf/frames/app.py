@@ -2,7 +2,8 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import font
 from pyetf.finance.portfolio import Portfolio
-from pyetf.frames.main_page import MainPage
+from pyetf.frames.main_page.main_page import MainPage
+from pyetf.frames.vs_index.vs_index_page import VsIndexPage
 from pyetf.frames.menu.menu_bar import MenuBar
 
 class App:
@@ -35,6 +36,17 @@ class App:
         self.mainframe = ttk.Frame(root)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 
-        self.main_page = MainPage(self)
+        self.curr_page = MainPage(self)
 
         MenuBar(self)
+    
+    def initial_page(self):
+        """
+        Functions that returns to the initial page.
+        :return None 
+        """
+        self.curr_page = MainPage(self)
+
+    def new_page(self):
+        self.mainframe = ttk.Frame(self.root)
+        self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))

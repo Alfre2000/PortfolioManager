@@ -39,6 +39,14 @@ def date_from_text(string):
     day, month, year = list(map(int, string.split('-')))
     return date(year, month, day)
 
+def date_to_text(day):
+    """
+    Convert a datetime.date object into a string text in the 'day-month-year' format.
+    :param string: datetime.date
+    :return str
+    """
+    return f'{day.day}-{day.month}-{day.year}'
+
 def clear_selection(inputWidget, inputFrame):
     """
     Clears the button selection leaving selected only the button from the inputFrame parameter.

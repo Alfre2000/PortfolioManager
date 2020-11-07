@@ -1,9 +1,9 @@
 from pyetf.functions import configure
 from tkinter import *
 from tkinter import ttk
-from pyetf.frames.etf_list import EtfList
-from pyetf.frames.add_etf import AddEtf
-from pyetf.frames.sell_etf import SellEtf
+from pyetf.frames.main_page.etf_list import EtfList
+from pyetf.frames.main_page.add_etf import AddEtf
+from pyetf.frames.main_page.sell_etf import SellEtf
 
 
 class RightFrame(ttk.Frame):

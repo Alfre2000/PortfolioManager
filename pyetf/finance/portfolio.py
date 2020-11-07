@@ -255,37 +255,42 @@ class Portfolio:
         else:
             return round(profit, 2)
     
-    def equity_line(self, sp500=False, pct=False):
+    def equity_line(self, index=False, pct=False, dateIni='Ini', dateFin='Fin'):
         """
-        Draws an historical series about the Portfolio's gains. If the sp500 parameter is True, the graph of the
+        Draws an historical series about the Portfolio's gains. If the index parameter is True, the graph of the
         Standard & Poor 500 is added. If the pct parameter is True results will be in percentage form.
         :param pct: bool
-        :param sp500: bool
+        :param index: bool
         :return: None
         """
-        assert isinstance(sp500, bool), 'Error! The sp500 parameter must be boolean.'
+        assert isinstance(index, bool) or isinstance(index, str), 'Error! The index parameter must be boolean or string.'
         assert isinstance(pct, bool), 'Error! The pct parameter must be boolean.'
+        tickerToIndex = {'SPY': 'S&P 500', '^GDAXI': 'DAX', '^DJI': 'DOW JONES', '^IXIC': 'NASDAQ', '^N225': 'NIKKEI 225', 'FTSEMIB.MI': 'FTSE MIB'}
+        if dateIni == 'Ini':
+            dateIni = self.data.index[0]
+        if dateFin == 'Fin':
+            dateFin = self.data.index[-1]
         #Download Standard and Poors 500 data
         spy = None
-        if sp500:
-            if sp500 == True:
-                spy = yf.Ticker("SPY").history(start=self.data.index[0])
-            else:
-                spy = yf.Ticker(sp500).history(start=self.data.index[0])
+        if index:
+            if index == True:
+                index = 'SPY'
+            spy = yf.Ticker(index).history(start=dateIni, end=dateFin)
         # Plot the graph
         fig = plt.figure(figsize=(4, 2), dpi=200)
         fig.patch.set_facecolor('#ececec')
         ax = fig.add_subplot(111)
         ax.set_xlabel('Time')
         if pct:
-            ax.plot(self.data['Profit/Loss%'], lw=1.2, color="blue", label='Equity')
+            ax.plot(self.data.loc[dateIni:dateFin,'Profit/Loss%'], lw=1.2, color="blue", label='Equity')
             ax.set_title('Profit/Loss % - Daily')
             ax.set_ylabel('P/L %')
-            if sp500:
+            if index:
+                ax.set_title(f'Profit/Loss % - Daily vs {tickerToIndex[index]}')
                 spy['Var%'] = (spy.Close - spy.Close[0]) / spy.Close[0] * 100
-                ax.plot(spy['Var%'], color="orange", label="SPY", linewidth=1.2)
+                ax.plot(spy['Var%'], color="orange", label=tickerToIndex[index], linewidth=1.2)
         else:
-            ax.plot(self.data['Profit/Loss'], lw=1.2, label='Equity')
+            ax.plot(self.data.loc[dateIni:dateFin, 'Profit/Loss'], lw=1.2, label='Equity')
             ax.set_ylabel('Gains (€)')
             ax.set_title('Profit/Loss (€) - Daily')
         ax.xaxis.set_major_locator(dates.MonthLocator())

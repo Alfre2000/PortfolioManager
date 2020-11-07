@@ -1,7 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter import font
-from matplotlib.pyplot import text
 from pyetf.functions import *
 from datetime import date
 
@@ -67,14 +65,14 @@ class LeftFrame(ttk.Frame):
             pct = BooleanVar(value=kwargs['pct'])
         else:
             pct = BooleanVar()
-        if 'sp500' in kwargs:
-            sp500 = BooleanVar(value=kwargs['sp500'])
+        if 'index' in kwargs:
+            index = BooleanVar(value=kwargs['index'])
         else:
-            sp500 = BooleanVar()
+            index = BooleanVar()
         frame = ttk.Frame(self.c_frame)
         frame.pack(side=BOTTOM)
-        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=0, pady=20, padx=20)
-        ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='Percentuale', variable=pct, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), index=index.get())).grid(row=0, column=0, pady=20, padx=20)
+        ttk.Checkbutton(frame, text='S&P500', variable=index, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), index=index.get())).grid(row=0, column=2, pady=20, padx=20)
         configure(frame, 0, 3)
         graph(fig, self.c_frame)
     

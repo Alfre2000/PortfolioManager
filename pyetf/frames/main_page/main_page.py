@@ -1,5 +1,5 @@
-from pyetf.frames.right_frame import RightFrame
-from pyetf.frames.left_frame import LeftFrame
+from pyetf.frames.main_page.right_frame import RightFrame
+from pyetf.frames.main_page.left_frame import LeftFrame
 from pyetf.functions import *
 from tkinter import ttk
 
