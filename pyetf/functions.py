@@ -39,12 +39,15 @@ def date_from_text(string):
     day, month, year = list(map(int, string.split('-')))
     return date(year, month, day)
 
-def date_to_text(day):
+def date_to_text(day, monthString=False):
     """
     Convert a datetime.date object into a string text in the 'day-month-year' format.
     :param string: datetime.date
     :return str
     """
+    months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novermbre', 'Dicembre']
+    if monthString:
+        return f'{day.day} {months[day.month-1]} {day.year}'
     return f'{day.day}-{day.month}-{day.year}'
 
 def clear_selection(inputWidget, inputFrame):
@@ -56,12 +59,12 @@ def clear_selection(inputWidget, inputFrame):
     :return None
     """
     if inputWidget == 'PortfolioGraphs' or inputWidget == 'Tables':
-        inputFrame.app.right_frame.etf_list.clear_box()
+        inputFrame.app.rightFrame.etf_list.clear_box()
     elif inputWidget == 'Button':
         inputFrame.clear_radio()
-        inputFrame.app.right_frame.etf_list.clear_box()
+        inputFrame.app.rightFrame.etf_list.clear_box()
     elif inputWidget == 'EtfGraphs':
-        inputFrame.app.left_frame.clear_radio()
+        inputFrame.app.leftFrame.clear_radio()
     inputFrame.c_frame = inputFrame.app.new_central_frame()
 
 def nextWeekDay(day):

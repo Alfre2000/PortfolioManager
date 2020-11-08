@@ -1,14 +1,21 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import font
 from pyetf.functions import configure, graph, date_to_text, date_from_text
 
 class VsIndexPage:
     """Class representing the page where you can confront your portfolio against other index"""
 
+    indexToTicker = {'S&P 500': 'SPY', 'NASDAQ': '^IXIC', 'DAX': '^GDAXI', 'DOW JONES': '^DJI', 'NIKKEI 225': '^N225', 'FTSE MIB': 'FTSEMIB.MI'}
+
     def __init__(self, app):
         """
         Initialization of the page.
         """
+        titleFont = font.Font(family='Helvetica', name='titleFont', size=17)
+        titleStyle = ttk.Style()
+        titleStyle.configure('TitleVsIndex.TLabel', foreground='#2464e3', font=titleFont)
+
         self.app = app
         self.portfolio = app.p
 
@@ -37,10 +44,9 @@ class VsIndexPage:
         self.leftFrame = ttk.Frame(self.app.mainframe)
 
         # Selezione Indice --> Combobox e Label
-        ttk.Label(self.leftFrame, text='Portafoglio vs', justify='center').grid(row=0, column=0, columnspan=2, pady=(20,0))
-        indexToTicker = {'S&P 500': 'SPY', 'NASDAQ': '^IXIC', 'DAX': '^GDAXI', 'DOW JONES': '^DJI', 'NIKKEI 225': '^N225', 'FTSE MIB': 'FTSEMIB.MI'}
+        ttk.Label(self.leftFrame, text='Portafoglio vs', justify='center', style='TitleVsIndex.TLabel').grid(row=0, column=0, columnspan=2, pady=(20,0))
         self.index = StringVar(value='S&P 500')
-        self.combo = ttk.Combobox(self.leftFrame, textvariable=self.index, width=14, justify='center', state='readonly', values=list(indexToTicker.keys()))
+        self.combo = ttk.Combobox(self.leftFrame, textvariable=self.index, width=14, justify='center', state='readonly', values=list(self.indexToTicker.keys()))
         self.combo.grid(row=1, column=0, columnspan=2, pady=(0,20))
         self.combo.bind('<<ComboboxSelected>>', lambda _: self.combo.selection_clear())
 
@@ -69,10 +75,7 @@ class VsIndexPage:
         ttk.Separator(self.leftFrame, orient=HORIZONTAL).grid(row=7, column=0, columnspan=2, sticky='nswe', padx=(20, 0))
         
         # Bottone per aggiornare --> Button
-        iniChoice = lambda: date_from_text(self.dateIni.get())
-        finChioce = lambda: date_from_text(self.dateFin.get())
-        refreshGraph = lambda: self.equity_graph(index=indexToTicker[self.index.get()], dateIni=iniChoice(), dateFin=finChioce())
-        ttk.Button(self.leftFrame, text='Aggiorna', command=refreshGraph).grid(row=8, column=0, columnspan=2, pady=(0,30))
+        ttk.Button(self.leftFrame, text='Aggiorna', command=self.refresh_page).grid(row=8, column=0, columnspan=2, pady=(0,30))
 
         configure(self.leftFrame, 9, 2)
     
@@ -82,9 +85,42 @@ class VsIndexPage:
         :return None
         """
         self.rightFrame = ttk.Frame(self.app.mainframe)
-        ttk.Button(self.rightFrame, text='Pagina Iniziale', command=self.app.initial_page).grid(row=0, column=0)
-        ttk.Button(self.rightFrame, text='Chiudi', command=self.app.mainframe.quit).grid(row=1, column=0)
-        configure(self.rightFrame, 2, 1)
+
+        pPerformance, idxPerfomance, comparedPerfomance = self.portfolio.performance_vs_index() # Initial Stats
+
+        # Statistiche --> Labels
+        ttk.Label(self.rightFrame, text='Statistiche', anchor='s', style='TitleVsIndex.TLabel').grid(row=0, column=0, columnspan=2, pady=(20,0))
+        
+        dateIni = date_to_text(self.portfolio.data.index[0], True)
+        dateFin = date_to_text(self.portfolio.data.index[-1], True)
+        self.dates = ttk.Label(self.rightFrame, text=f'{dateIni}\n-\n{dateFin}', justify='center')
+        self.dates.grid(row=1, column=0, columnspan=2)
+
+        ttk.Label(self.rightFrame, text='Performance del\nPortafoglio', justify='center').grid(row=2, column=0, padx=10)
+        self.portfolioPerformance = ttk.Label(self.rightFrame, text=format(pPerformance, '.2f') + ' %')
+        self.portfolioPerformance.grid(row=2, column=1, padx=10)
+
+        self.l1 = ttk.Label(self.rightFrame, text=f'Performance \n{self.index.get()}', justify='center')
+        self.l1.grid(row=3, column=0, padx=10)
+        self.indexPerformance = ttk.Label(self.rightFrame, text=format(idxPerfomance, '.2f') + ' %')
+        self.indexPerformance.grid(row=3, column=1, padx=10)
+
+        self.l2 = ttk.Label(self.rightFrame, text=f'Portafoglio\nvs\n{self.index.get()}', justify='center')
+        self.l2.grid(row=4, column=0, padx=10)
+        self.comparedPerformance = ttk.Label(self.rightFrame, text=format(comparedPerfomance, '.2f') + ' %')
+        self.comparedPerformance.grid(row=4, column=1, padx=10)
+
+        # Separator
+        ttk.Separator(self.rightFrame, orient=HORIZONTAL).grid(row=5, column=0, columnspan=2, sticky='nswe', padx=(20, 0))
+
+
+        # Bottone per tornare alla pagina iniziale --> Button
+        ttk.Button(self.rightFrame, text='Pagina Iniziale', command=self.app.initial_page).grid(row=6, column=0, columnspan=2)
+
+        # Bottone per chiudere l'applicazione --> Button
+        ttk.Button(self.rightFrame, text='Chiudi', command=self.app.mainframe.quit).grid(row=7, column=0, columnspan=2)
+        
+        configure(self.rightFrame, 8, 1)
 
     def equity_graph(self, **kwargs):
         """
@@ -102,3 +138,20 @@ class VsIndexPage:
         # ttk.Checkbutton(frame, text='S&P500', variable=sp500, onvalue=True, offvalue=False, command=lambda: self.equity_graph(pct=pct.get(), sp500=sp500.get())).grid(row=0, column=2, pady=20, padx=20)
         # configure(frame, 0, 3)
         graph(fig, self.centralFrame)
+    
+    def refresh_page(self):
+        """
+        Refresh the vsIndex page considering the parameters chosen by the user.
+        :return None
+        """
+        iniChoice = date_from_text(self.dateIni.get())
+        finChioce = date_from_text(self.dateFin.get())
+        idxChoice = self.indexToTicker[self.index.get()]
+        self.equity_graph(index=idxChoice, dateIni=iniChoice, dateFin=finChioce)
+        pPerformance, idxPerfomance, comparedPerfomance = self.portfolio.performance_vs_index(idxChoice, iniChoice, finChioce)
+        self.portfolioPerformance['text'] = format(pPerformance, '.2f') + ' %'
+        self.indexPerformance['text'] = format(idxPerfomance, '.2f') + ' %'
+        self.comparedPerformance['text'] = format(comparedPerfomance, '.2f') + ' %'
+        self.l1['text'] = f'Performance \n{self.index.get()}'
+        self.l2['text'] = f'Portafoglio\nvs\n{self.index.get()}'
+        self.dates['text'] = f'{date_to_text(iniChoice, True)}\n-\n{date_to_text(finChioce, True)}'

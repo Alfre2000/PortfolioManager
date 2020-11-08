@@ -19,7 +19,7 @@ class LeftFrame(ttk.Frame):
         """
         super().__init__(root)
         self.app = app
-        self.c_frame = self.app.central_frame
+        self.c_frame = self.app.centralFrame
         self.p = self.app.p
         ttk.Button(self, text='Dati Ultimo Giorno', command=self.last_day).grid(row=0, column=0, pady=(20,0))
         self.graph = StringVar()

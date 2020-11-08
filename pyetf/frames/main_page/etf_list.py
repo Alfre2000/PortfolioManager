@@ -16,7 +16,7 @@ class EtfList(ttk.Frame):
         super().__init__(root)
         self.p = root.p
         self.app = root.app
-        self.c_frame = self.app.central_frame
+        self.c_frame = self.app.centralFrame
         self.names = tuple([x for x in self.p.etfs.keys()])
         self.etf_names = StringVar(value=self.names)
         self.lbox = Listbox(self, listvariable=self.etf_names, height=6, justify='center')

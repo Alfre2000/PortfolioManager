@@ -52,6 +52,6 @@ class AddEtf(ttk.Frame):
             self.commVar.set('')
             self.result.configure(text='ETF aggiunto !')
             self.root.etf_list.refresh()
-            self.root.app.left_frame.last_day()
+            self.root.app.leftFrame.last_day()
         except:
             self.result.configure(text='Errore !')   

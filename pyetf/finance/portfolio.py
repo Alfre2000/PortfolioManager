@@ -9,6 +9,8 @@ from datetime import datetime
 from datetime import date, timedelta
 import matplotlib.pylab as pylab
 
+pd.options.mode.chained_assignment = None
+
 class Portfolio:
     """Class representing a portfolio of ETFs and his performances during time"""
 
@@ -142,7 +144,29 @@ class Portfolio:
             return round(((finalValue / initialValue)**(365/numberOfDays) - 1) * 100, 2) 
         else:
             return 0
-    
+        
+    def performance_vs_index(self, index='SPY', dateIni='Ini', dateFin='Fin'):
+        """
+        Function that calculates the performance of the portfolio against a financial index.
+        :param index: str
+        :param dateIni: datetime.date
+        :param dateFin: datetime.date
+        """
+        if dateFin == 'Fin':
+            dateFin = self.data.index[-1]
+        if dateIni == 'Ini':
+            dateIni = self.data.index[0]
+            portfolioGains = round(self.data.loc[self.data.index[-1], 'Profit/Loss%'], 2)
+        else:
+            pData = self.data.loc[dateIni:dateFin]
+            pData.loc[:,'Profit/Loss'] = pData['Gains'].cumsum()
+            pData.loc[:,'Profit/Loss%'] = pData['Profit/Loss'] / pData['Invested'] * 100
+            portfolioGains = round(pData.loc[pData.index[-1], 'Profit/Loss%'], 2)
+        indexData = yf.Ticker(index).history(start=dateIni, end=dateFin)
+        indexData['Var%'] = (indexData.Close - indexData.Close[0]) / indexData.Close[0] * 100
+        indexGains = round(indexData.loc[indexData.index[-1], 'Var%'], 2)
+        return portfolioGains, indexGains, portfolioGains - indexGains
+        
     def get_etfs_list(self):
         """
         Print the list of ETFs present in your portfolio
@@ -228,7 +252,7 @@ class Portfolio:
         else:
             return 0
     
-    def gains_btw_dates(self, date_ini, date_fin='today', pct=False):
+    def gains_btw_dates(self, date_ini='Ini', date_fin='today', pct=False):
         """
         Calculates the gains (absolute or percentage) of the Portfolio during the selcted period
         :param date_ini: datetime.date
@@ -237,10 +261,12 @@ class Portfolio:
         :return: float
         """
         assert date_fin == 'today' or isinstance(date_fin, date), 'Error! You have to pass a datetime.date istance to date parameters.'
-        assert isinstance(date_ini, date), 'Error! You have to pass a datetime.date istance to date parameters.'
+        assert date_ini == 'Ini' or isinstance(date_ini, date), 'Error! You have to pass a datetime.date istance to date parameters.'
         assert isinstance(pct, bool), 'Error! The pct parameter must be boolean.'
         if date_fin == 'today':
             date_fin = self.data.index[-1]
+        if date_ini == 'Ini':
+            date_ini = self.data.index[0]
         assert date_ini >= self.data.index[0], 'Error ! Invalid Initial Date'
         assert date_fin >= self.data.index[0], 'Error ! Invalid Final Date'
         date_fin = self._first_good_date(date_fin)
@@ -270,7 +296,14 @@ class Portfolio:
             dateIni = self.data.index[0]
         if dateFin == 'Fin':
             dateFin = self.data.index[-1]
-        #Download Standard and Poors 500 data
+
+        # Get the normalized data by setting to zero the profit for the initial date.
+        pData = self.data.loc[dateIni:dateFin]
+        pData.loc[:,'Profit/Loss'] = pData['Gains'].cumsum()
+        pData.loc[:,'Profit/Loss%'] = pData['Profit/Loss'] / pData['Invested'] * 100
+        dayBefore = pd.DataFrame(data=[[0,0,0,0,0,0]], columns=pData.columns, index=[dateIni-timedelta(1)])
+        pData = pd.concat([dayBefore, pData])
+        #Download index data
         spy = None
         if index:
             if index == True:
@@ -282,7 +315,7 @@ class Portfolio:
         ax = fig.add_subplot(111)
         ax.set_xlabel('Time')
         if pct:
-            ax.plot(self.data.loc[dateIni:dateFin,'Profit/Loss%'], lw=1.2, color="blue", label='Equity')
+            ax.plot(pData['Profit/Loss%'], lw=1.2, color="blue", label='Equity')
             ax.set_title('Profit/Loss % - Daily')
             ax.set_ylabel('P/L %')
             if index:
