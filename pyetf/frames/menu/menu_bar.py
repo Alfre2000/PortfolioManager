@@ -20,8 +20,16 @@ class MenuBar:
         self.menu.add_cascade(menu=self.fileMenu, label='File')
         self.fileMenu.add_command(label='Open...', command=self.openFile)
         self.menu.add_cascade(menu=self.portfolioMenu, label='Portafoglio')
-        self.portfolioMenu.add_command(label='vs Indici', command=self.vs_indexes)
+        self.portfolioMenu.add_command(label='Pagina Iniziale', command=self.initial_page)
+        self.portfolioMenu.add_command(label='Vs Indici', command=self.vs_indexes)
         app.root['menu'] = self.menu
+    
+    def initial_page(self):
+        """
+        Change the current page to be the initial page.
+        :return None 
+        """
+        self.app.initial_page()
 
     def openFile(self):
         """
@@ -30,13 +38,13 @@ class MenuBar:
         """
         filename = filedialog.askopenfilename()
         self.app.p = Portfolio(filename, self.app.server)
-        self.curr_page.left_frame.p = self.app.p
-        self.curr_page.right_frame.p = self.app.p
-        self.curr_page.right_frame.etf_list.p = self.app.p
-        self.curr_page.right_frame.etf_list.refresh()
-        self.curr_page.right_frame.add_etf.p = self.app.p
-        self.curr_page.right_frame.sell_etf.p = self.app.p
-        self.curr_page.left_frame.last_day()
+        self.curr_page.leftFrame.p = self.app.p
+        self.curr_page.rightFrame.p = self.app.p
+        self.curr_page.rightFrame.etf_list.p = self.app.p
+        self.curr_page.rightFrame.etf_list.refresh()
+        self.curr_page.rightFrame.add_etf.p = self.app.p
+        self.curr_page.rightFrame.sell_etf.p = self.app.p
+        self.curr_page.leftFrame.last_day()
     
     def vs_indexes(self):
         """

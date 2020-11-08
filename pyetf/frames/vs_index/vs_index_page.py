@@ -47,6 +47,7 @@ class VsIndexPage:
         ttk.Label(self.leftFrame, text='Portafoglio vs', justify='center', style='TitleVsIndex.TLabel').grid(row=0, column=0, columnspan=2, pady=(20,0))
         self.index = StringVar(value='S&P 500')
         self.combo = ttk.Combobox(self.leftFrame, textvariable=self.index, width=14, justify='center', state='readonly', values=list(self.indexToTicker.keys()))
+        self.combo.option_add('*TCombobox*Listbox.Justify', 'center')
         self.combo.grid(row=1, column=0, columnspan=2, pady=(0,20))
         self.combo.bind('<<ComboboxSelected>>', lambda _: self.combo.selection_clear())
 
