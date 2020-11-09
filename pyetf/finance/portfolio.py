@@ -52,12 +52,13 @@ class Portfolio:
         assert isinstance(etf, ETF), 'Error! You have to pass an ETF object as an argument'
         self.etfs[etf.ticker_name] = etf
         f = pd.read_csv(self.infoFile, parse_dates=True)
-        f.loc[len(f)] = [etf.ticker_name,etf.buy_date,etf.n_shares, etf.buy_price, etf.commissions[0],etf.sell_date, etf.sell_price, etf.info,  etf.commissions[1]]
+        f.loc[len(f)] = [etf.ticker_name, str(etf.buy_date), etf.n_shares, etf.buy_price, etf.commissions[0],etf.sell_date, etf.sell_price, etf.info,  etf.commissions[1]]
         f.sort_values(by='buy_date', axis=0, inplace=True)
+        f.index = range(len(f))
         f.to_csv(self.infoFile, index=False)
         self.refresh()
     
-    def sell_etf(self, etf_name, sell_date, sell_price, commissions):
+    def sell_etf(self, etf_name, sell_date, sell_price, commissions, n_shares='all'):
         """
         Function for selling an ETF from the portfolio
         :param etf_name: str
@@ -70,13 +71,34 @@ class Portfolio:
         assert isinstance(sell_date, date), 'Sell_date parameter needs to be a datetime.date instance'
         assert isinstance(sell_price, float), 'Sell_price must be float'
         assert isinstance(commissions, float), 'Commissions must be float'
-        self.etfs[etf_name].sell(sell_date, sell_price, commissions)
-        new_file = pd.read_csv(self.infoFile, index_col='Name')
-        new_file.loc[etf_name, 'sell_date'] = sell_date
-        new_file.loc[etf_name, 'sell_price'] = sell_price
-        new_file.loc[etf_name, 'sell_commissions'] = commissions
-        new_file.to_csv(self.infoFile)
+        assert n_shares == 'all' or isinstance(n_shares, int), 'N_shares must be int'
+        if n_shares == 'all':
+            self.etfs[etf_name].sell(sell_date, sell_price, commissions)
+            new_file = pd.read_csv(self.infoFile, index_col='Name')
+            new_file.loc[etf_name, 'sell_date'] = sell_date
+            new_file.loc[etf_name, 'sell_price'] = sell_price
+            new_file.loc[etf_name, 'sell_commissions'] = commissions
+            new_file.to_csv(self.infoFile)
+        else:
+            new_file = pd.read_csv(self.infoFile, index_col='Name')
+            assert 0 < n_shares <= new_file.loc[etf_name, 'n_shares'], f'Number of shares must be between 0 and {new_file.loc[etf_name, "n_shares"]}'
+            new_file.loc[etf_name, 'n_shares'] -= n_shares # Take out the sold shares
+            prevEtf = self.get_etf_by_name(etf_name)
+            newName = self.find_next_name(etf_name)
+            newEtf = ETF(newName, prevEtf.buy_date, n_shares, prevEtf.buy_price, prevEtf.commissions[0], sell_date, sell_price, prevEtf.info, commissions)
+            new_file.to_csv(self.infoFile)
+            self.add_etf(newEtf)
         self.refresh()
+    
+    def find_next_name(self, etfName):
+        """
+        Find the next number that needs to be used for the etf name and creates the next etf name.
+        :param etfName: str
+        :return str
+        """
+        etfName = etfName.split('-')[0]
+        max_n = max(list(map(lambda x: int(x.split('-')[1]) if x.split('-')[0] == etfName else 0, self.etfs.keys())))
+        return etfName + '-' + str(max_n + 1) 
 
     def remove_etf(self, etf_name):
         """
