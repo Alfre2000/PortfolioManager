@@ -43,15 +43,16 @@ class AddEtf(ttk.Frame):
         When the Add button is clicked try adding the ETF. Display the result on the adjacent label.
         :return None
         """
-        try:
-            self.p.add_etf(ETF(self.tickerVar.get(), date_from_text(self.e.get()), self.nVar.get(), self.priceVar.get(), self.commVar.get(), info=self.p.infoFile.split('Info.csv')[0]+'ETFs/'))     
-            self.tickerVar.set('')
-            self.dateVar.set('')
-            self.nVar.set('')
-            self.priceVar.set('')
-            self.commVar.set('')
-            self.result.configure(text='ETF aggiunto !')
-            self.root.etf_list.refresh()
-            self.root.app.leftFrame.last_day()
-        except:
-            self.result.configure(text='Errore !')   
+        #try:
+        tickerName = self.p.find_next_name(self.tickerVar.get())
+        self.p.add_etf(ETF(tickerName, date_from_text(self.e.get()), self.nVar.get(), self.priceVar.get(), self.commVar.get(), info=self.p.infoFile.split('Info.csv')[0]+'ETFs/'))     
+        self.tickerVar.set('')
+        self.dateVar.set('')
+        self.nVar.set('')
+        self.priceVar.set('')
+        self.commVar.set('')
+        self.result.configure(text='ETF aggiunto !')
+        self.root.etf_list.refresh()
+        self.root.app.leftFrame.last_day()
+        # except:
+        #     self.result.configure(text='Errore !')   
